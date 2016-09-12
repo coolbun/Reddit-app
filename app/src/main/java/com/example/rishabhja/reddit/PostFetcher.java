@@ -37,4 +37,13 @@ public class PostFetcher {
                 .build();
         client.newCall(request).enqueue(callback);
     }
+
+    public void executeWithHeader(String key,String value) {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader(key,value)
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
 }

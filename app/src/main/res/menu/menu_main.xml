@@ -5,16 +5,5 @@
         android:title="Settings"
         android:icon="@android:drawable/ic_menu_preferences"
         app:showAsAction="always"
-        android:orderInCategory="100"/>
-    <item android:id="@+id/menu_help"
-        android:title="Help"
-        android:icon="@android:drawable/ic_menu_help"
-        app:showAsAction="ifRoom"
-         />
-    <item android:id="@+id/menu_compass"
-        android:title="Compass"
-        android:icon="@android:drawable/ic_menu_compass"
-        app:showAsAction="never"
-        android:orderInCategory="105"/>
-
+        android:orderInCategory="100"/>\
 </menu>

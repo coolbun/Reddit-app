@@ -32,7 +32,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             super(itemView);
             this.textViewName = (TextView) itemView.findViewById(R.id.textViewName);
             this.imageViewIcon = (ImageView) itemView.findViewById(R.id.imageView);
-            this.imageButtonIcon= (ImageButton) itemView.findViewById(R.id.upvote);
+            this.imageButtonIcon = (ImageButton) itemView.findViewById(R.id.upvote);
         }
     }
 
@@ -51,7 +51,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         return myViewHolder;
     }
 
-    public void setEmpty(){
+    public void setEmpty() {
         dataSet.clear();
         notifyDataSetChanged();
     }
@@ -61,14 +61,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 
         TextView textViewName = holder.textViewName;
         ImageView imageView = holder.imageViewIcon;
-        ImageButton imageButton=holder.imageButtonIcon;
+        ImageButton imageButton = holder.imageButtonIcon;
 
         textViewName.setText(dataSet.get(listPosition).getTitle());
         textViewName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context,DisplayPost.class);
-                intent.putExtra("URL",dataSet.get(listPosition).getUrl());
+                Intent intent = new Intent(context, DisplayPost.class);
+                intent.putExtra("URL", dataSet.get(listPosition).getUrl());
                 context.startActivity(intent);
 
             }
@@ -78,7 +78,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         //Log.e("imgURL", imgURL);
 
 
-        if (imgURL!=null&&imgURL.startsWith("http")) {
+        if (imgURL != null && imgURL.startsWith("http")) {
             imageView.setVisibility(View.VISIBLE);
             Picasso.with(context)
                     .load(imgURL)
@@ -87,7 +87,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Dialog dialog=new Dialog(context,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                    Dialog dialog = new Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
                     dialog.setContentView(R.layout.image_view);
                     ImageView image = (ImageView) dialog.findViewById(R.id.zoomImage);
                     Picasso.with(context)

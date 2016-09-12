@@ -1,10 +1,15 @@
 package com.example.rishabhja.reddit;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,48 +18,48 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import java.net.*;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.rishabhja.reddit.Model.Data.Container;
 import com.google.gson.Gson;
-import com.google.gson.stream.MalformedJsonException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements OAuth2.ActivityforResultHandler, NavigationView.OnNavigationItemSelectedListener {
 
+    private static final String OATH_URL = "https://www.oauth.reddit.com";
+    private OAuth2 getAccessToken;
     private final String URL = "http://www.reddit.com/.json";
     private RecyclerView.Adapter adapter;
     private RecyclerView recyclerView;
     private ArrayList<Model.Data.Container> data;
     private Callback getPosts;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private ListView drawerList;
+    private ListView mDrawerList;
+    private Context context;
+    private ProgressBar progressBar;
     private Runnable updateAdapter = new Runnable() {
         @Override
         public void run() {
             adapter.notifyDataSetChanged();
         }
     };
-    private final String CLIENT_ID="NtJh8uzYc8BDbQ";
-    private final String REDIRECT_URL="http://localhost/";
+    private final int LOGIN_REQUEST_CODE = 1;
     private SQLHelper dbHelper;
     private Toolbar tb;
 
@@ -62,26 +67,166 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setToolbar();
 
         dbHelper = new SQLHelper(this);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        tb = (Toolbar) findViewById(R.id.main_toolbar);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        context = this;
+
+        setStausBarcolor();
+        setSupportActionBar(tb);
+        initRecyclerView();
+        defineCallback();
+        showPostsOffline();
+        setDrawer();
+        setOnLoginClickListener();
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                data.clear();
-                dbHelper.deleteAll();
-                adapter.notifyDataSetChanged();
+                clearAdapter();
                 showPosts();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-        recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
-        initRecyclerView();
-        defineCallback();
-        showPostsOffline();
     }
 
+    @Override
+    public void updateUserInfo() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.main_navigation);
+        final TextView loginButton = (TextView) navigationView.getHeaderView(0).findViewById(R.id.loginButton);
+
+        PostFetcher getUsername = new PostFetcher(OATH_URL);
+        getUsername.setCallback(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.e("response",response.toString());
+                progressBar.setVisibility(View.GONE);
+                loginButton.setText(response.toString());
+            }
+        });
+
+        Log.e("Access_token",getFromMemory("access_token"));
+        getUsername.executeWithHeader("Authorization","bearer "+getFromMemory("access_token"));
+    }
+
+
+    private void clearAdapter() {
+        data.clear();
+        dbHelper.deleteAll();
+        adapter.notifyDataSetChanged();
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void setStausBarcolor() {
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.cardview_dark_background));
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_camera) {
+            // Handle the camera action
+        } else if (id == R.id.nav_gallery) {
+
+        } else if (id == R.id.nav_slideshow) {
+
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    private void setOnLoginClickListener() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.main_navigation);
+        TextView loginButton = (TextView) navigationView.getHeaderView(0).findViewById(R.id.loginButton);
+
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getAccessToken = new OAuth2((Activity) context);
+                getAccessToken.oauthAuthorization();
+            }
+        });
+    }
+
+    private void setDrawer() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, tb, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.main_navigation);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == LOGIN_REQUEST_CODE) {
+            //clear adapter and start progress bar
+            clearAdapter();
+            progressBar.setVisibility(View.VISIBLE);
+            getAccessToken.onResult(data);
+        }
+    }
+
+    @Override
+    public void istartActivityForResult(Intent intent, int requestCode) {
+        startActivityForResult(intent, requestCode);
+    }
+
+
+    @Override
+    public void iStoreToMemory(String key, String value) {
+        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key, value);
+        editor.commit();
+    }
+
+    public String getFromMemory(String key) {
+        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+        return sharedPreferences.getString(key,null);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
     private void showPostsOffline() {
         List<RedditPost> postList = dbHelper.getallPosts();
@@ -145,113 +290,4 @@ public class MainActivity extends AppCompatActivity {
             }
         };
     }
-
-    private void setToolbar() {
-        tb = (Toolbar) findViewById(R.id.main_toolbar);
-        setSupportActionBar(tb);
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this,
-                drawerLayout, tb, R.string.drawer_open,
-                R.string.drawer_close);
-        drawerLayout.addDrawerListener(actionBarDrawerToggle);
-        actionBarDrawerToggle.syncState();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch(item.getItemId()){
-            case R.id.menu_help:
-                userLogin();
-                return true;
-        }
-        return true;
-    }
-
-    private void userLogin() {
-        String URL="https://www.reddit.com/api/v1/authorize?client_id="+CLIENT_ID+"&response_type=code&"+
-        "state=RANDOM_STRING&redirect_uri="+REDIRECT_URL+"&duration=permanent&scope=identity";
-        Intent intent=new Intent(this, LoginActivity.class);
-        intent.putExtra("URL",URL);
-        startActivityForResult(intent,1);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode,int resultCode,Intent data){
-        super.onActivityResult(requestCode,resultCode,data);
-        if(requestCode==1){
-            Log.e("Received url",data.getStringExtra("URL"));
-            try {
-                URL urlparams=new URL(data.getStringExtra("URL"));
-                Map<String,String> params=getQueryMap(urlparams.getQuery());
-                if(params.containsKey("error")){
-                    Log.e("Login error",params.get("error"));
-                    //Generate a dialog
-                }
-                else{
-                    getAccessToken(params);
-//                    SharedPreferences sharedPreferences=this.getPreferences(Context.MODE_PRIVATE);
-//                    SharedPreferences.Editor editor=sharedPreferences.edit();
-//                    editor.putString("UserCode",params.get("code"));
-//                    Log.e("code",params.get("code"));
-//                    editor.commit();
-                }
-            } catch (MalformedURLException e) {
-                Log.e("URL response error","Error in parsing URL received");
-                e.printStackTrace();
-            } catch (IOException e) {
-                Log.e("URL response error","Error in receiving access token");
-                e.printStackTrace();
-            }
-
-
-        }
-    }
-
-    private void getAccessToken(Map<String, String> params) throws IOException {
-        OkHttpClient client=new OkHttpClient();
-        Log.e("code",params.get("code"));
-        RequestBody formBody=new FormBody.Builder()
-                .add("grant_type","authorization_code")
-                .add("code",params.get("code"))
-                .add("redirect_uri",REDIRECT_URL)
-                .build();
-        String base64encodedString = Base64.encode("TutorialsPoint?java8".getBytes("utf-8"),);
-
-        Request request=new Request.Builder()
-                .url("https://www.reddit.com/api/v1/access_token")
-                .post(formBody)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.e("Error","Access token to retrieved");
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.e("Access token",response.body().string());
-            }
-        });
-
-    }
-
-    public static Map<String, String> getQueryMap(String query)
-    {
-        String[] params = query.split("&");
-        Map<String, String> map = new HashMap<String, String>();
-        for (String param : params)
-        {
-            String name = param.split("=")[0];
-            String value = param.split("=")[1];
-            map.put(name, value);
-        }
-        return map;
-    }
-
 }
