@@ -85,8 +85,6 @@ public class OAuth2 {
         basicOauth = basicOauth.substring(0, basicOauth.length() - 1);
         basicOauth = "Basic " + basicOauth;
 
-        Log.e("length", String.valueOf(basicOauth.length()));
-
         Request request = new Request.Builder()
                 .url("https://www.reddit.com/api/v1/access_token")
                 .addHeader("Authorization", basicOauth)
@@ -101,18 +99,15 @@ public class OAuth2 {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.e("Access token", response.body().string());
-                Gson gson = new Gson();
+                //Log.e("Access token", response.body().string());
                 final String responseData=response.body().string();
+                Gson gson = new Gson();
                 AuthorizationToken authorizationToken = gson.fromJson(responseData,
                         AuthorizationToken.class);
-                if(authorizationToken==null)
-                    Log.e("I am fucked","I am fucked");
-                //Log.e("token",authorizationToken.getAccess_token());
-//                activityHandler.iStoreToMemory("access_token", authorizationToken.getAccess_token());
-//                activityHandler.iStoreToMemory("refresh_token", authorizationToken.getRefresh_token());
-//                activityHandler.iStoreToMemory("expires_in", authorizationToken.getExpires());
-//                activityHandler.updateUserInfo();
+                activityHandler.iStoreToMemory("access_token", authorizationToken.getAccess_token());
+                activityHandler.iStoreToMemory("refresh_token", authorizationToken.getRefresh_token());
+                activityHandler.iStoreToMemory("expires_in", authorizationToken.getExpires());
+                activityHandler.updateUserInfo();
             }
         });
     }

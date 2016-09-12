@@ -7,19 +7,6 @@ import com.google.gson.internal.Streams;
  * Created by rishabhj on 9/12/2016.
  */
 public class AuthorizationToken {
-    public String getScope() {
-        return scope;
-    }
-
-    public int getExpires_in() {
-
-        return expires_in;
-    }
-
-    public String getToken_type() {
-
-        return token_type;
-    }
 
     @SerializedName("access_token")
     private String access_token;
@@ -33,12 +20,24 @@ public class AuthorizationToken {
     @SerializedName("scope")
     private String scope;
 
+    @SerializedName("refresh_token")
+    private String refresh_token;
+
     public String getRefresh_token() {
         return refresh_token;
     }
 
-    @SerializedName("refresh_token")
-    private String refresh_token;
+    public String getScope() {
+        return scope;
+    }
+
+    public int getExpires_in() {
+        return expires_in;
+    }
+
+    public String getToken_type() {
+        return token_type;
+    }
 
     public String getAccess_token() {
         return access_token;

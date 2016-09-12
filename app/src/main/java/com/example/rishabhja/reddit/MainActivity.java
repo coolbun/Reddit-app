@@ -42,7 +42,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity
         implements OAuth2.ActivityforResultHandler, NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String OATH_URL = "https://www.oauth.reddit.com";
+    private static final String OATH_URL = "https://oauth.reddit.com";
     private OAuth2 getAccessToken;
     private final String URL = "http://www.reddit.com/.json";
     private RecyclerView.Adapter adapter;
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.main_navigation);
         final TextView loginButton = (TextView) navigationView.getHeaderView(0).findViewById(R.id.loginButton);
 
-        PostFetcher getUsername = new PostFetcher(OATH_URL);
+        final PostFetcher getUsername = new PostFetcher(OATH_URL+"/api/v1/me/.json");
         getUsername.setCallback(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -106,13 +106,18 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.e("response",response.toString());
-                progressBar.setVisibility(View.GONE);
-                loginButton.setText(response.toString());
+            public void onResponse(Call call, final Response response) throws IOException {
+                Gson gson=new Gson();
+                final UserDetails userDetails=gson.fromJson(response.body().string(),UserDetails.class);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                        loginButton.setText(userDetails.getName());
+                    }
+                });
             }
         });
-
         Log.e("Access_token",getFromMemory("access_token"));
         getUsername.executeWithHeader("Authorization","bearer "+getFromMemory("access_token"));
     }
@@ -162,9 +167,12 @@ public class MainActivity extends AppCompatActivity
         TextView loginButton = (TextView) navigationView.getHeaderView(0).findViewById(R.id.loginButton);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
+            DrawerLayout mdrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             @Override
             public void onClick(View v) {
                 getAccessToken = new OAuth2((Activity) context);
+                if (mdrawer.isDrawerOpen(GravityCompat.START))
+                    mdrawer.closeDrawer(GravityCompat.START);
                 getAccessToken.oauthAuthorization();
             }
         });
@@ -179,6 +187,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.main_navigation);
         navigationView.setNavigationItemSelectedListener(this);
+
     }
 
     @Override
