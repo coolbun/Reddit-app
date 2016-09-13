@@ -70,20 +70,23 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
                 Intent intent = new Intent(context, DisplayPost.class);
                 intent.putExtra("URL", dataSet.get(listPosition).getUrl());
                 context.startActivity(intent);
-
             }
         });
 
-        final String imgURL = dataSet.get(listPosition).getImgURL();
-        //Log.e("imgURL", imgURL);
-
+        String imgURL = dataSet.get(listPosition).getImgURL();
 
         if (imgURL != null && imgURL.startsWith("http")) {
             imageView.setVisibility(View.VISIBLE);
+
+            if (imgURL.contains("gif")) {
+                imgURL = dataSet.get(listPosition).getThumbnail();
+                Log.e("imgURL",imgURL);
+            }
             Picasso.with(context)
                     .load(imgURL)
                     .fit().centerCrop()
                     .into(imageView);
+            final String finalImgURL = imgURL;
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -91,7 +94,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
                     dialog.setContentView(R.layout.image_view);
                     ImageView image = (ImageView) dialog.findViewById(R.id.zoomImage);
                     Picasso.with(context)
-                            .load(imgURL)
+                            .load(finalImgURL)
                             .into(image);
                     dialog.show();
                 }

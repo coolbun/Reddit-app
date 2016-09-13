@@ -26,8 +26,12 @@ public class PostFetcher {
         this.url = url;
     }
 
-    public void setCallback(Callback c){
-        callback=c;
+    public void setCallback(Callback c) {
+        callback = c;
+    }
+
+    public void setURL(String url) {
+        this.url = url;
     }
 
     public void execute() {
@@ -38,11 +42,11 @@ public class PostFetcher {
         client.newCall(request).enqueue(callback);
     }
 
-    public void executeWithHeader(String key,String value) {
+    public void executeWithHeader(String key, String value) {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
-                .addHeader(key,value)
+                .addHeader(key, value)
                 .build();
         client.newCall(request).enqueue(callback);
     }

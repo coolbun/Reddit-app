@@ -32,8 +32,6 @@ public class OAuth2 {
     private final Intent callingintent;
 
     public interface ActivityforResultHandler {
-        void istartActivityForResult(Intent intent, int requestCode);
-
         void updateUserInfo();
 
         void iStoreToMemory(String key, String value);
@@ -46,14 +44,13 @@ public class OAuth2 {
         callingintent = new Intent(activity, LoginActivity.class);
     }
 
-    public void oauthAuthorization() {
+    public String oauthAuthorization() {
         String URL = "https://www.reddit.com/api/v1/authorize?client_id=" + CLIENT_ID + "&response_type=code&" +
-                "state=RANDOM_STRING&redirect_uri=" + REDIRECT_URL + "&duration=permanent&scope=identity";
-        callingintent.putExtra("URL", URL);
-        activityHandler.istartActivityForResult(callingintent, LOGIN_REQUEST_CODE);
+                "state=RANDOM_STRING&redirect_uri=" + REDIRECT_URL + "&duration=permanent&scope=identity,read,flair";
+        return URL;
     }
 
-    public void onResult(Intent data) {
+    public void onResult(Intent data,Callback callback) {
         Log.e("Received url", data.getStringExtra("URL"));
         try {
             URL urlparams = new URL(data.getStringExtra("URL"));
@@ -61,7 +58,7 @@ public class OAuth2 {
             if (params.containsKey("error")) {
                 Log.e("Login error", params.get("error"));
             } else {
-                getAccessToken(params);
+                getAccessToken(params,callback);
             }
         } catch (MalformedURLException e) {
             Log.e("URL response error", "Error in parsing URL received");
@@ -72,7 +69,7 @@ public class OAuth2 {
         }
     }
 
-    private void getAccessToken(Map<String, String> params) throws IOException {
+    private void getAccessToken(Map<String, String> params,Callback callback) throws IOException {
         OkHttpClient client = new OkHttpClient();
         Log.e("code", params.get("code"));
         RequestBody formBody = new FormBody.Builder()
@@ -91,25 +88,7 @@ public class OAuth2 {
                 .post(formBody)
                 .build();
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.e("Error", "Access token to retrieved");
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                //Log.e("Access token", response.body().string());
-                final String responseData=response.body().string();
-                Gson gson = new Gson();
-                AuthorizationToken authorizationToken = gson.fromJson(responseData,
-                        AuthorizationToken.class);
-                activityHandler.iStoreToMemory("access_token", authorizationToken.getAccess_token());
-                activityHandler.iStoreToMemory("refresh_token", authorizationToken.getRefresh_token());
-                activityHandler.iStoreToMemory("expires_in", authorizationToken.getExpires());
-                activityHandler.updateUserInfo();
-            }
-        });
+        client.newCall(request).enqueue(callback);
     }
 
     public static Map<String, String> getQueryMap(String query) {

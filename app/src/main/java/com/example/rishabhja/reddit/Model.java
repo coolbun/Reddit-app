@@ -30,10 +30,10 @@ public class Model {
             @SerializedName("data")
             private Content data;
             private String imgurl;
-            boolean present_imgurl=false;
+            boolean present_imgurl = false;
 
             public Container(RedditPost post) {
-                data=new Content();
+                data = new Content();
                 setId(post.getId());
                 setImgURL(post.getImgUrl());
                 setTitle(post.getTitle());
@@ -52,29 +52,32 @@ public class Model {
                 return data.getId();
             }
 
-            public String getImgURL(){
-                if(present_imgurl)
+            public String getImgURL() {
+                if (present_imgurl)
                     return imgurl;
                 return data.getImgUrl();
             }
 
-            public void setUrl(String url){
+            public String getThumbnail() {
+                return data.getThumbnail();
+            }
+
+            public void setUrl(String url) {
                 data.seturl(url);
             }
 
-            public void setTitle(String title){
+            public void setTitle(String title) {
                 data.settitle(title);
             }
 
-            public void setId(String id){
+            public void setId(String id) {
                 data.setid(id);
             }
 
-            public void setImgURL(String ImgUrl){
-                present_imgurl=true;
-                imgurl= ImgUrl;
+            public void setImgURL(String ImgUrl) {
+                present_imgurl = true;
+                imgurl = ImgUrl;
             }
-
 
             public static class Content {
                 @SerializedName("title")
@@ -101,7 +104,7 @@ public class Model {
                 }
 
                 public String getImgUrl() {
-                    if(preview!=null)
+                    if (preview != null)
                         return preview.getImgURL();
                     return null;
                 }
@@ -118,6 +121,10 @@ public class Model {
                     this.id = id;
                 }
 
+                public String getThumbnail() {
+                    return thumbnail;
+                }
+
                 public static class Images {
                     @SerializedName("images")
                     private ArrayList<ImageContent> images;
@@ -131,7 +138,7 @@ public class Model {
                         private Source source;
 
                         public String getImgURL() {
-                            if(source!=null)
+                            if (source != null)
                                 return source.getImgURL();
                             return null;
                         }
@@ -141,7 +148,7 @@ public class Model {
                             private String url;
 
                             public String getImgURL() {
-                                if(url!=null)
+                                if (url != null)
                                     return url;
                                 return null;
                             }
