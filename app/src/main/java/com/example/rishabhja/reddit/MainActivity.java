@@ -72,6 +72,10 @@ public class MainActivity extends AppCompatActivity
         setOnLoginClickListener();
     }
 
+    /*
+        Updates main activity after
+        user has logged in
+     */
     @Override
     public void updateUserInfo() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.main_navigation);
@@ -219,6 +223,10 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+    /*
+        Add subreddits to the navigation
+        drawer
+     */
     public void setNavDrawer(String url) {
         final Menu menu=navigationView.getMenu();
         fetchFromURL.setURL(url);

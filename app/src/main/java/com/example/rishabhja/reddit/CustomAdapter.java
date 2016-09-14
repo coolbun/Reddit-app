@@ -5,6 +5,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,12 +28,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         TextView textViewName;
         ImageView imageViewIcon;
         ImageButton imageButtonIcon;
+        Toolbar toolbar;
 
         public MyViewHolder(View itemView) {
             super(itemView);
             this.textViewName = (TextView) itemView.findViewById(R.id.textViewName);
             this.imageViewIcon = (ImageView) itemView.findViewById(R.id.imageView);
             this.imageButtonIcon = (ImageButton) itemView.findViewById(R.id.upvote);
+            this.toolbar= (Toolbar) itemView.findViewById(R.id.card_toolbar );
         }
     }
 
@@ -62,6 +65,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         TextView textViewName = holder.textViewName;
         ImageView imageView = holder.imageViewIcon;
         ImageButton imageButton = holder.imageButtonIcon;
+        Toolbar toolbar=holder.toolbar;
 
         textViewName.setText(dataSet.get(listPosition).getTitle());
         textViewName.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +77,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             }
         });
 
+        toolbar.setTitle("Test");
+
         String imgURL = dataSet.get(listPosition).getImgURL();
 
         if (imgURL != null && imgURL.startsWith("http")) {
@@ -80,7 +86,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 
             if (imgURL.contains("gif")) {
                 imgURL = dataSet.get(listPosition).getThumbnail();
-                Log.e("imgURL",imgURL);
+                //Log.e("imgURL",imgURL);
             }
             Picasso.with(context)
                     .load(imgURL)

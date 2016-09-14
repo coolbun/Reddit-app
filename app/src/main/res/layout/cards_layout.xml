@@ -7,10 +7,8 @@
     android:tag="cards main container">
 
 
-
-    <android.support.v7.widget.CardView
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_view"
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         card_view:cardBackgroundColor="@color/cardview_light_background"
@@ -18,45 +16,56 @@
         card_view:cardUseCompatPadding="true">
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginBottom="5dp"
-        >
-
-        <TextView
-            android:id="@+id/textViewName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
-            android:paddingLeft="5dp"
-            android:paddingBottom="5dp"
-            android:text="Android Name"
-            tools:text="hello"
-            />
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:tag="image_tag"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:src="@drawable/ic_menu_camera"
-            android:layout_gravity="center"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <ImageButton
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@mipmap/ic_upvote"
-            android:layout_gravity="left"
-            android:id="@+id/upvote"
-            android:visibility="invisible"
-            />
+            <android.support.v7.widget.Toolbar xmlns:local="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/card_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@color/cardview_light_background"
+                android:elevation="4dp"
+                local:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                local:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textViewName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="5dp"
+                    android:text="Android Name"
+                    tools:text="hello" />
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_menu_camera"
+                    android:tag="image_tag" />
+
+                <ImageButton
+                    android:id="@+id/upvote"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="left"
+                    android:src="@mipmap/ic_upvote"
+                    android:visibility="invisible" />
+            </LinearLayout>
+        </LinearLayout>
 
 
     </android.support.v7.widget.CardView>

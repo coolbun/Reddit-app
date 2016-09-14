@@ -46,7 +46,7 @@ public class OAuth2 {
 
     public String oauthAuthorization() {
         String URL = "https://www.reddit.com/api/v1/authorize?client_id=" + CLIENT_ID + "&response_type=code&" +
-                "state=RANDOM_STRING&redirect_uri=" + REDIRECT_URL + "&duration=permanent&scope=identity,read,flair";
+                "state=RANDOM_STRING&redirect_uri=" + REDIRECT_URL + "&duration=permanent&scope=identity,read,flair,report";
         return URL;
     }
 
