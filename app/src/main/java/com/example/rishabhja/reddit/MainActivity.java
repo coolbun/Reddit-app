@@ -85,8 +85,6 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public void updateUserInfo() {
-        final TextView loginButton = (TextView) navigationView.getHeaderView(0).findViewById(R.id.loginButton);
-
         PostFetcher getUsername = new PostFetcher(OATH_URL + "/api/v1/me/.json");
         getUsername.setCallback(new Callback() {
             @Override
@@ -98,21 +96,13 @@ public class MainActivity extends AppCompatActivity
             public void onResponse(Call call, final Response response) throws IOException {
                 Gson gson = new Gson();
                 String repsonseString = response.body().string();
-                Log.e("resposne after login", repsonseString);
                 final UserDetails user = gson.fromJson(repsonseString, UserDetails.class);
-                Log.d(MainActivity.class.getName(), "user parsed: " + user.getName());
-
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
                         userDetails.set(user);
                         refreshAdapter(OATH_URL + "/.json");
                         progressBar.setVisibility(View.GONE);
-
-//                        NavHeaderMainBinding binding = DataBindingUtil.getBinding(navigationView.getHeaderView(0));
-//                        binding.setUser(userDetails.get());
-//                        binding.executePendingBindings();
                     }
                 });
             }
@@ -134,7 +124,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateList(String url) {
-
         ListFragment fragment = (ListFragment) getFragmentManager().findFragmentById(R.id.fragment_container);
         fragment.refreshFragment(url);
     }
@@ -212,10 +201,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        return false;
-    }
 
     /*
         Add subreddits to the navigation
@@ -234,7 +219,6 @@ public class MainActivity extends AppCompatActivity
             public void onResponse(Call call, final Response response) throws IOException {
                 runOnUiThread(new Runnable() {
                     String responseData = response.body().string();
-
                     @Override
                     public void run() {
                         final SubMenu submenu = menu.addSubMenu("Reddit Picks");
@@ -284,5 +268,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        return false;
     }
 }
