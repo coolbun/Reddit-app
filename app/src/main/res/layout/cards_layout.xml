@@ -1,34 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:tag="cards main container">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
 
-    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/card_view"
+        <import type="com.example.rishabhja.reddit.RedditCardPost" />
+
+        <variable
+            name="cardPost"
+            type="RedditCardPost" />
+    </data>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        card_view:cardBackgroundColor="@color/cardview_light_background"
-        card_view:cardElevation="1dp"
-        card_view:cardUseCompatPadding="true">
+        android:orientation="vertical"
+        android:tag="cards main container">
 
 
-        <LinearLayout
+        <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/card_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <android.support.v7.widget.Toolbar xmlns:local="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/card_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:background="@color/cardview_light_background"
-                android:elevation="4dp"
-                local:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                local:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+            android:layout_height="wrap_content"
+            card_view:cardBackgroundColor="@color/cardview_light_background"
+            card_view:cardElevation="1dp"
+            card_view:cardUseCompatPadding="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -44,30 +41,56 @@
                     android:layout_marginTop="10dp"
                     android:paddingBottom="5dp"
                     android:paddingLeft="5dp"
-                    android:text="Android Name"
+                    android:text="@{cardPost.title}"
                     tools:text="hello" />
 
                 <ImageView
                     android:id="@+id/imageView"
                     android:layout_width="match_parent"
-                    android:layout_height="150dp"
+                    android:layout_height="220dp"
                     android:layout_gravity="center"
                     android:layout_margin="5dp"
                     android:layout_weight="1"
-                    android:src="@drawable/ic_menu_camera"
-                    android:tag="image_tag" />
+                    android:onClick="@{cardPost.onImageClick}"
+                    android:tag="image_tag"
+                    app:imageUrl="@{cardPost.imgURL}"
+                    app:thumbnail="@{cardPost.thumbanil}" />
 
-                <ImageButton
-                    android:id="@+id/upvote"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="left"
-                    android:src="@mipmap/ic_upvote"
-                    android:visibility="invisible" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        android:paddingLeft="8dp"
+                        android:paddingTop="8dp"
+                        android:text="0 Comments" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/upvote"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginRight="20dp"
+                        android:background="@color/accent"
+                        android:src="@drawable/up_arrow" />
+
+                    <ImageButton
+                        android:id="@+id/downvote"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@color/accent"
+                        android:src="@drawable/arrow_down" />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
 
 
-    </android.support.v7.widget.CardView>
-
-</LinearLayout>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+</layout>

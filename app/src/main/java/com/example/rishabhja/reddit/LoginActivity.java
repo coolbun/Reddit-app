@@ -11,19 +11,20 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private WebView webView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        webView=(WebView) findViewById(R.id.logineWebView);
-        webView.setWebViewClient(new WebViewClient(){
+        webView = (WebView) findViewById(R.id.logineWebView);
+        webView.setWebViewClient(new WebViewClient() {
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view,String url){
-                if(url.startsWith("http://localhost")){
-                    Intent intent=new Intent();
-                    intent.putExtra("URL",url);
-                    setResult(1,intent);
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.startsWith("http://localhost")) {
+                    Intent intent = new Intent();
+                    intent.putExtra("URL", url);
+                    setResult(1, intent);
                     finish();
                 }
                 return false;

@@ -32,14 +32,6 @@ public class Model {
             private String imgurl;
             boolean present_imgurl = false;
 
-            public Container(RedditPost post) {
-                data = new Content();
-                setId(post.getId());
-                setImgURL(post.getImgUrl());
-                setTitle(post.getTitle());
-                setUrl(post.getUrl());
-            }
-
             public String getUrl() {
                 return data.getUrl();
             }
