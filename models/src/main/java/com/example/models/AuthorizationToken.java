@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.models;
 
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.Streams;

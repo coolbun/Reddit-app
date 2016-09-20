@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.models;
 
 import android.provider.ContactsContract;
 
@@ -49,6 +49,10 @@ public class Model {
                     return imgurl;
                 return data.getImgUrl();
             }
+            
+            public String getCommentsUrl(){
+                return data.getCommentsUrl();
+            }
 
             public String getThumbnail() {
                 return data.getThumbnail();
@@ -82,6 +86,8 @@ public class Model {
                 private String url;
                 @SerializedName("preview")
                 private Images preview;
+                @SerializedName("permalink")
+                private String commentsUrl;
 
                 public String getTitle() {
                     return title;
@@ -115,6 +121,10 @@ public class Model {
 
                 public String getThumbnail() {
                     return thumbnail;
+                }
+
+                public String getCommentsUrl() {
+                    return commentsUrl;
                 }
 
                 public static class Images {

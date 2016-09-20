@@ -3,10 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.rishabhja.reddit.DisplayPost">
+    tools:context=".DisplayPostActivity"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/displaypost_toolbar"
+        layout="@layout/toolbar"
+        />
 
     <WebView
+        android:id="@+id/webView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/webView" />
+        android:layout_height="match_parent" />
 </LinearLayout>

@@ -33,9 +33,8 @@ public class LoginActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setVerticalScrollBarEnabled(true);
         webView.getSettings().setUseWideViewPort(true);
+        webView.getSettings().setBuiltInZoomControls(true);
         webView.setHorizontalScrollBarEnabled(true);
         webView.loadUrl(getIntent().getStringExtra("URL"));
-
-
     }
 }

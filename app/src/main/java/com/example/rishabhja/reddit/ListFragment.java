@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.PostFetcher;
+import com.example.models.Model;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -28,17 +30,14 @@ public class ListFragment extends Fragment {
     private ArrayList<RedditCardPost> data;
     private ListAdapter adapter;
     private Callback getPosts;
-    private final String URL = "http://www.reddit.com/.json";
     private String url;
-    private Runnable updateAdapter = new Runnable() {
-        @Override
-        public void run() {
-            adapter.notifyDataSetChanged();
-        }
-    };
     private SQLHelper dbHelper;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Boolean isHeader;
+    private PostFetcher postFetcher;
+    private RedditApp redditApp;
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,25 +49,22 @@ public class ListFragment extends Fragment {
 
         url = getArguments().getString("URL");
         isHeader = getArguments().getBoolean("isHeader");
-        dbHelper = new SQLHelper(getActivity());
+        postFetcher = new PostFetcher("");
+        dbHelper = null;
+        redditApp=(RedditApp) getActivity().getApplication();
 
-        if (!isHeader)
+        if(getActivity() instanceof MainActivity)
+            dbHelper=new SQLHelper(getActivity());
+
+        if (getActivity() instanceof SearchResultsActivity) {
+            showPosts(url);
+        } else if (!isHeader)
             showOfflinePosts();
         else
-            showPostsWithHeader(getArguments().getString("key"), getArguments().getString("value"));
+            showPosts(url,
+                    getArguments().getString("key"),
+                    getArguments().getString("value"));
         return view;
-    }
-
-    private void showPostsWithHeader(String key, String value) {
-        Log.e("URL with HEAder", url);
-        PostFetcher postFetcher = new PostFetcher(url);
-        postFetcher.setCallback(getPosts);
-        postFetcher.executeWithHeader(key, value);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     private void initRecyclerView(View view) {
@@ -97,29 +93,11 @@ public class ListFragment extends Fragment {
                 if (isHeader == false)
                     showPosts(url);
                 else
-                    showPostsWithHeader(getArguments().getString("key"), getArguments().getString("value"));
+                    showPosts(url,
+                            getArguments().getString("key"),
+                            getArguments().getString("value"));
             }
         });
-    }
-
-    public void refreshFragment(String url){
-        swipeRefreshLayout.setRefreshing(true);
-        clearAdapter();
-        this.url=url;
-        showPosts(url);
-    }
-
-    private void clearAdapter() {
-        dbHelper.deleteAll();
-        data.clear();
-    }
-
-    private void loadMoreData() {
-        String url = new String(URL + "?after=");
-        url += data.get(data.size() - 1).id;
-        PostFetcher postFetcher = new PostFetcher(url);
-        postFetcher.setCallback(getPosts);
-        postFetcher.execute();
     }
 
     private void defineCallback() {
@@ -136,15 +114,16 @@ public class ListFragment extends Fragment {
                 Gson gson = new Gson();
                 Model model = gson.fromJson(responseData, Model.class);
                 for (Model.Data.Container c : model.getChildrenList()) {
-                    final RedditCardPost post = new RedditCardPost(c.getId(), c.getTitle(), c.getUrl(), c.getImgURL(), c.getThumbnail());
+                    RedditCardPost post = new RedditCardPost(c.getId(), c.getTitle(), c.getUrl(),
+                            c.getImgURL(), c.getThumbnail(), c.getCommentsUrl());
                     data.add(post);
-                    dbHelper.addPost(post);
+                    if(dbHelper!=null)
+                        dbHelper.addPost(post);
                 }
-                getActivity().runOnUiThread(updateAdapter);
-
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        adapter.notifyDataSetChanged();
                         swipeRefreshLayout.setRefreshing(false);
                     }
                 });
@@ -153,16 +132,45 @@ public class ListFragment extends Fragment {
     }
 
     private void showOfflinePosts() {
+        if(dbHelper==null)
+            return;
         List<RedditCardPost> postList = dbHelper.getallPosts();
+        Log.e("size", String.valueOf(postList.size()));
         for (RedditCardPost post : postList) {
             data.add(post);
         }
         adapter.notifyDataSetChanged();
     }
 
-    public void showPosts(String url) {
-        PostFetcher postFetcher = new PostFetcher(url);
+    public void showPosts(String url, String... headers) {
+        postFetcher.setURL(url);
         postFetcher.setCallback(getPosts);
-        postFetcher.execute();
+        postFetcher.execute(headers);
+    }
+
+    public void refreshFragment(String url) {
+        swipeRefreshLayout.setRefreshing(true);
+        clearAdapter();
+        this.url = url;
+        showPosts(url);
+    }
+
+    private void clearAdapter() {
+        if(dbHelper!=null)
+            dbHelper.deleteAll();
+        data.clear();
+    }
+
+    private void loadMoreData() {
+        String url = new String(redditApp.getToken().getUrl() + "?after=");
+        Log.e("Load more",url);
+        url += data.get(data.size() - 1).id;
+        postFetcher.setURL(url);
+        postFetcher.setCallback(getPosts);
+
+        if(redditApp.getToken().getHeaderKey()!=null)
+            postFetcher.execute(redditApp.getToken().getHeaderKey(),redditApp.getToken().getHeaderValue());
+        else
+            postFetcher.execute();
     }
 }

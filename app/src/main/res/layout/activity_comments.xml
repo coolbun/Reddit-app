@@ -1,11 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.rishabhja.reddit.CommentsActivity"
+    android:orientation="vertical">
+
+
+    <include layout="@layout/toolbar"
+        android:id="@+id/commentsToolbar"
+
+        />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:id="@+id/commentTitle"
+        android:layout_height="150dp"
+        android:background="@color/primary_dark"
+        android:textColor="@color/cardview_light_background"
+        android:textSize="20dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="50dp"
+        android:textAlignment="center"/>
+
+    <ProgressBar
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:id="@+id/commentprogressbar"
+        android:layout_gravity="center"/>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyler_comments"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.example.rishabhja.reddit.CommentsActivity">
-    </LinearLayout>
-</layout>
+        android:background="@color/divider" />
+</LinearLayout>

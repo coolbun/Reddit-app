@@ -5,6 +5,10 @@ import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
 
+import com.example.PostFetcher;
+import com.example.models.AuthorizationToken;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -27,9 +31,7 @@ import okhttp3.Response;
 public class OAuth2 {
 
     private final String CLIENT_ID = "NtJh8uzYc8BDbQ";
-    private final int LOGIN_REQUEST_CODE = 1;
     private final String REDIRECT_URL = "http://localhost/";
-    private final Intent callingintent;
 
     public interface ActivityforResultHandler {
         void updateUserInfo();
@@ -37,20 +39,14 @@ public class OAuth2 {
         void iStoreToMemory(String key, String value);
     }
 
-    ActivityforResultHandler activityHandler;
-
-    OAuth2(Activity activity) {
-        activityHandler = (ActivityforResultHandler) activity;
-        callingintent = new Intent(activity, LoginActivity.class);
-    }
-
     public String oauthAuthorization() {
         String URL = "https://www.reddit.com/api/v1/authorize?client_id=" + CLIENT_ID + "&response_type=code&" +
-                "state=RANDOM_STRING&redirect_uri=" + REDIRECT_URL + "&duration=permanent&scope=identity,read,flair,report";
+                "state=RANDOM_STRING&redirect_uri=" + REDIRECT_URL + "&duration=permanent" +
+                "&scope=identity,read,flair,report,submit";
         return URL;
     }
 
-    public void onResult(Intent data,Callback callback) {
+    public ListenableFuture<AuthorizationToken> onResult(Intent data) {
         Log.e("Received url", data.getStringExtra("URL"));
         try {
             URL urlparams = new URL(data.getStringExtra("URL"));
@@ -58,7 +54,8 @@ public class OAuth2 {
             if (params.containsKey("error")) {
                 Log.e("Login error", params.get("error"));
             } else {
-                getAccessToken(params,callback);
+                PostFetcher postFetcher = new PostFetcher();
+                return postFetcher.getAccessToken(params);
             }
         } catch (MalformedURLException e) {
             Log.e("URL response error", "Error in parsing URL received");
@@ -67,9 +64,10 @@ public class OAuth2 {
             Log.e("URL response error", "Error in receiving access token");
             e.printStackTrace();
         }
+        return null;
     }
 
-    private void getAccessToken(Map<String, String> params,Callback callback) throws IOException {
+    private void getAccessToken(Map<String, String> params, Callback callback) throws IOException {
         OkHttpClient client = new OkHttpClient();
         Log.e("code", params.get("code"));
         RequestBody formBody = new FormBody.Builder()

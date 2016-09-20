@@ -6,10 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.rishabhja.reddit.Model.Data.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Created by rishabh.ja on 07/09/16.
@@ -17,12 +16,14 @@ import java.util.List;
 public class SQLHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "Posts.db";
-    public static final String TABLE_NAME = "redditPost";
+    public static final String DATABASE_NAME = "RedditPost.db";
+    public static final String TABLE_NAME = "Posts";
     public static final String URL = "url";
     public static final String TITLE = "title";
     public static final String ID = "id";
     public static final String ImgURL = "imgURL";
+    public static final String THUMBANILS = "thumbanil";
+    public static final String COMMENTSURL = "commentsUrl";
 
     public SQLHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -34,7 +35,9 @@ public class SQLHelper extends SQLiteOpenHelper {
                 ID + " TEXT PRIMARY KEY," +
                 TITLE + " TEXT," +
                 URL + " TEXT," +
-                ImgURL + " TEXT" +
+                ImgURL + " TEXT," +
+                THUMBANILS + " TEXT," +
+                COMMENTSURL + " TEXT" +
                 ");";
         db.execSQL(SQL_CREATE_ENTRIES);
     }
@@ -52,12 +55,13 @@ public class SQLHelper extends SQLiteOpenHelper {
 
     public void addPost(RedditCardPost post) {
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
         values.put(ID, post.id);
         values.put(ImgURL, post.imgURL);
         values.put(URL, post.url);
         values.put(TITLE, post.title);
+        values.put(THUMBANILS, post.thumbanil);
+        values.put(COMMENTSURL,post.commentsUrl);
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
@@ -65,15 +69,17 @@ public class SQLHelper extends SQLiteOpenHelper {
     public RedditCardPost getPost(String id) {
 
         SQLiteDatabase db = this.getReadableDatabase();
-        RedditCardPost post=null;
-        Cursor cursor = db.query(TABLE_NAME, new String[]{ID, TITLE, URL, ImgURL}, ID + "=?", new String[]{id}, null, null, null, null);
-            if (cursor != null) {
-                cursor.moveToFirst();
-                post = new RedditCardPost(cursor.getString(0),
-                        cursor.getString(1), cursor.getString(2), cursor.getString(3), "");
-            }
+        RedditCardPost post = null;
+        Cursor cursor = db.query(TABLE_NAME, new String[]{ID, TITLE, URL, ImgURL,
+                THUMBANILS,COMMENTSURL}, ID + "=?",
+                new String[]{id}, null, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            post = new RedditCardPost(cursor.getString(0),
+                    cursor.getString(1), cursor.getString(2), cursor.getString(3),
+                    cursor.getString(4),cursor.getString(5));
+        }
         return post;
-
     }
 
     public List<RedditCardPost> getallPosts() {
@@ -82,7 +88,7 @@ public class SQLHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
-        if(cursor != null) {
+        if (cursor != null) {
             try {
                 if (cursor.moveToFirst()) {
                     do {
@@ -90,7 +96,8 @@ public class SQLHelper extends SQLiteOpenHelper {
                                 cursor.getString(1),
                                 cursor.getString(2),
                                 cursor.getString(3),
-                                "");
+                                cursor.getString(4),
+                                cursor.getString(5));
                         postList.add(post);
                     } while (cursor.moveToNext());
                 }
