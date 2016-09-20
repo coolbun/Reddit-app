@@ -2,18 +2,16 @@ package com.example;
 
 import android.util.Base64;
 import android.util.Log;
-import android.view.SubMenu;
 
 import com.example.models.AuthorizationToken;
 import com.example.models.SubRedditModel;
+import com.example.models.UserDetails;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -60,9 +58,8 @@ public class PostFetcher {
         Request request;
         int len = args.length;
         if (len > 0) {
-            Log.e("header", args[0] + "," + args[1]);
-            for (int i = 0; i < len; i += 2) {
-                builder.addHeader(args[i], args[i + 1]);
+            for (int i = 0; i < len; i ++) {
+                builder.addHeader("Authorization", args[i]);
             }
         }
         if (params != null)
@@ -146,6 +143,28 @@ public class PostFetcher {
                 future.set(authorizationToken);
             }
         });
+        return future;
+    }
+
+    public ListenableFuture<UserDetails> getUser(String url, String... args) {
+        final SettableFuture<UserDetails> future = SettableFuture.create();
+
+        PostFetcher networkCaller = new PostFetcher();
+        networkCaller.setURL(url);
+        networkCaller.setCallback(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Gson gson = new Gson();
+                String repsonseString = response.body().string();
+                final UserDetails user = gson.fromJson(repsonseString, UserDetails.class);
+                future.set(user);
+            }
+        });
+        networkCaller.execute(args);
         return future;
     }
 }

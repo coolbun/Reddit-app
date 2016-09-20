@@ -37,17 +37,11 @@ import com.example.rishabhja.reddit.databinding.NavHeaderMainBinding;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.gson.Gson;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
-
 public class MainActivity extends AppCompatActivity
-        implements OAuth2.ActivityforResultHandler, NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String OATH_URL = "https://oauth.reddit.com";
     private static final String BASE_URL = "https://www.reddit.com";
@@ -63,7 +57,7 @@ public class MainActivity extends AppCompatActivity
     private NavHeaderMainBinding bind;
     private Context context;
     private DrawerLayout mdrawer;
-    ArrayList<String> sortTypes;
+    private ArrayList<String> sortTypes;
     private final int FRONT_INDEX = 0;
 
 
@@ -75,22 +69,17 @@ public class MainActivity extends AppCompatActivity
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         fetchFromURL = new PostFetcher();
         navigationView = (NavigationView) findViewById(R.id.main_navigation);
-        userDetails = new UserDetails();
         userViewModel = new UserViewModel();
         context = this;
         mdrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
+        tb = (Toolbar) findViewById(R.id.main_toolbar);
         applicationContent = (RedditApp) getApplication();
-        applicationContent.setToken(userDetails);
-        userDetails.setUrl(BASE_URL);
 
+        initUI();
+        saveToApplication();
         setSortTypes();
         setNavDrawer();
-        initUI();
-        onLoginClickListener();
-        onLogoutClickListener();
-        initUserDetails();
-
+        setClickListeners();
     }
 
     private void setSortTypes() {
@@ -103,43 +92,36 @@ public class MainActivity extends AppCompatActivity
         sortTypes.add("Top");
     }
 
-    private void onLogoutClickListener() {
-        NavigationView drawer = (NavigationView) findViewById(R.id.main_navigation);
-
-        TextView logoutButton = (TextView) drawer.getHeaderView(0).findViewById(R.id.logout);
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                iStoreToMemory("access_token", null);
-                initUserDetails();
-                mdrawer.closeDrawers();
-                userViewModel.name.set("Login");
-                userViewModel.logout.set("");
-                updateList(userDetails.getUrl() + "/.json");
-            }
-        });
-    }
-
-    private void initUserDetails() {
+    private void saveToApplication() {
         if (getFromMemory("access_token") != null) {
+            userDetails = new UserDetails();
             userDetails.setName(getFromMemory("userName"));
-            userDetails.setUrl(OATH_URL);
-            userDetails.setHeaderKey(getFromMemory("headerKey"));
-            userDetails.setHeaderValue(getFromMemory("access_token"));
+            userDetails.setAccessToken(getFromMemory("access_token"));
+
+            applicationContent.isLoggedin = true;
+            applicationContent.setToken(userDetails);
+            applicationContent.setCurrentUrl(OATH_URL);
+
+            //Binding updates
             userViewModel.name.set(userDetails.getName());
             userViewModel.logout.set("Logout");
         } else {
-            userDetails.setUrl(BASE_URL);
-            userDetails.setName(null);
-            userDetails.setHeaderKey(null);
+            userDetails = null;
+
+            applicationContent.isLoggedin = false;
+            applicationContent.setToken(null);
+            applicationContent.setCurrentUrl(BASE_URL);
+
+            //Binding updates
+            userViewModel.name.set("Login");
+            userViewModel.logout.set("");
         }
     }
 
     private void initUI() {
         setStausBarcolor();
-        tb = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(tb);
-        setDrawer();
+        initDrawer();
 
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         Fragment fragment = new com.example.rishabhja.reddit.ListFragment();
@@ -162,18 +144,31 @@ public class MainActivity extends AppCompatActivity
         window.setStatusBarColor(ContextCompat.getColor(this, R.color.cardview_dark_background));
     }
 
-    private void onLoginClickListener() {
+    private void setClickListeners() {
+
+        //on Login Click
         TextView loginButton = (TextView) navigationView.getHeaderView(0).findViewById(R.id.loginButton);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mdrawer.closeDrawers();
                 getAccessToken = new OAuth2();
-                if (mdrawer.isDrawerOpen(GravityCompat.START))
-                    mdrawer.closeDrawers();
-                String url = getAccessToken.oauthAuthorization();
+                String url = getAccessToken.oauthAuthorizationURL();
                 Intent intent = new Intent(v.getContext(), LoginActivity.class);
                 intent.putExtra("URL", url);
                 startActivityForResult(intent, LOGIN_REQUEST_CODE);
+            }
+        });
+
+        //on Logout Click
+        TextView logoutButton = (TextView) navigationView.getHeaderView(0).findViewById(R.id.logout);
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mdrawer.closeDrawers();
+                storeToMemory("access_token", null);
+                saveToApplication();
+                updateList(applicationContent.getCurrentUrl() + "/.json");
             }
         });
     }
@@ -183,30 +178,39 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == LOGIN_REQUEST_CODE && resultCode == 1) {
             progressBar.setVisibility(View.VISIBLE);
-            Log.e("result code", String.valueOf(resultCode));
-
             ListenableFuture<AuthorizationToken> listenableFuture = getAccessToken.onResult(data);
 
             Futures.addCallback(listenableFuture, new FutureCallback<AuthorizationToken>() {
                 @Override
                 public void onSuccess(AuthorizationToken authorizationToken) {
-                    iStoreToMemory("headerKey", "Authorization");
-                    iStoreToMemory("access_token", "bearer " + authorizationToken.getAccess_token());
-                    iStoreToMemory("refresh_token", authorizationToken.getRefresh_token());
-                    iStoreToMemory("expires_in", authorizationToken.getExpires());
-                    Log.e("access_token", authorizationToken.getAccess_token());
-                    initUserDetails();
-                    updateUserInfo();
+                    storeToMemory("access_token", "bearer " + authorizationToken.getAccess_token());
+                    PostFetcher networkCaller = new PostFetcher();
+                    Log.e("Access_token", getFromMemory("access_token"));
+                    ListenableFuture<UserDetails> future = networkCaller.getUser(OATH_URL + "/api/v1/me/.json",
+                            getFromMemory("access_token"));
+
+                    Futures.addCallback(future, new FutureCallback<UserDetails>() {
+                        @Override
+                        public void onSuccess(final UserDetails user) {
+                            storeToMemory("userName", user.getName());
+                            updateOnLogin(user);
+                        }
+
+                        @Override
+                        public void onFailure(Throwable throwable) {
+                        }
+                    });
                 }
 
                 @Override
                 public void onFailure(Throwable throwable) {
-
+                    Log.e("Failed in Login token", "");
                 }
             });
         }
     }
-    private void setDrawer() {
+
+    private void initDrawer() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, tb, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -227,20 +231,24 @@ public class MainActivity extends AppCompatActivity
         drawer
      */
     public void setNavDrawer() {
-        final String finalUrl = userDetails.getUrl();
-        String subRedditsurl = finalUrl + "/subreddits/.json";
+        String subRedditsurl = applicationContent.getCurrentUrl() + "/subreddits/.json";
         final Menu menu = navigationView.getMenu();
+
+        //Clear the current menu
+        menu.clear();
 
         SubMenu subMenu = menu.addSubMenu("Sort by : ");
         for (String sortTitle : sortTypes)
             subMenu.add(sortTitle);
 
-        final SubMenu submenu=menu.addSubMenu("Reddit Picks");
-        Log.e("key,vlaue",userDetails.getHeaderKey()+" "+userDetails.getHeaderValue());
-        ListenableFuture<SubRedditModel> modelFuture  = fetchFromURL.getSubRedditModel(
+        final SubMenu submenu = menu.addSubMenu("Reddit Picks");
+        String accessToken = null;
+        if (userDetails != null)
+            accessToken = userDetails.getAccessToken();
+
+        ListenableFuture<SubRedditModel> modelFuture = fetchFromURL.getSubRedditModel(
                 subRedditsurl,
-                userDetails.getHeaderKey(),
-                userDetails.getHeaderValue());
+                accessToken);
         Futures.addCallback(modelFuture, new FutureCallback<SubRedditModel>() {
             @Override
             public void onSuccess(final SubRedditModel model) {
@@ -254,58 +262,23 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
             }
+
             @Override
             public void onFailure(Throwable throwable) {
             }
         });
     }
 
-    /*
-        Updates main activity after
-        user has logged in
-     */
-    @Override
-    public void updateUserInfo() {
-        PostFetcher getUsername = new PostFetcher(OATH_URL + "/api/v1/me/.json");
-        getUsername.setCallback(new Callback() {
+    private void updateOnLogin(final UserDetails user) {
+        runOnUiThread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                Gson gson = new Gson();
-                String repsonseString = response.body().string();
-                final UserDetails user = gson.fromJson(repsonseString, UserDetails.class);
-                iStoreToMemory("userName", user.getName());
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        userViewModel.name.set(user.getName());
-                        userViewModel.logout.set("Logout");
-                        refreshAdapter(OATH_URL + "/.json");
-                        progressBar.setVisibility(View.GONE);
-                        initUserDetails();
-                        setNavDrawer();
-                    }
-                });
+            public void run() {
+                //refreshAdapter(OATH_URL + "/.json");
+                progressBar.setVisibility(View.GONE);
+                saveToApplication();
+                setNavDrawer();
             }
         });
-
-        getUsername.execute("Authorization", getFromMemory("access_token"));
-    }
-
-    private void refreshAdapter(String url) {
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        Fragment fragment = new com.example.rishabhja.reddit.ListFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("URL", userDetails.getUrl() + "/.json");
-        bundle.putBoolean("isHeader", true);
-        bundle.putString("key", userDetails.getHeaderKey());
-        bundle.putString("value", userDetails.getHeaderValue());
-        fragment.setArguments(bundle);
-        transaction.replace(R.id.fragment_container, fragment).commit();
     }
 
     @Override
@@ -354,7 +327,6 @@ public class MainActivity extends AppCompatActivity
             updateList(BASE_URL + "/" + new String((String) item.getTitle()).toLowerCase() + "/.json");
         else
             updateList(BASE_URL + "/" + item.getTitle() + "/.json");
-
         return true;
     }
 
@@ -365,7 +337,7 @@ public class MainActivity extends AppCompatActivity
                 finish();
                 return true;
             case R.id.add_post:
-                if (userDetails.getHeaderKey() == null) {
+                if (applicationContent.isLoggedin == false) {
                     InvalidAccessDialog dialog = new InvalidAccessDialog();
                     dialog.show(getFragmentManager(), "invalid access");
                 } else {
@@ -377,7 +349,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public void iStoreToMemory(String key, String value) {
+    public void storeToMemory(String key, String value) {
         SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(key, value);
@@ -388,5 +360,4 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
         return sharedPreferences.getString(key, null);
     }
-
 }

@@ -112,13 +112,12 @@ public class CommentsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     Log.e("name of comment clicked", mComments.get(position).name);
-                    if (userDetails.getHeaderKey() == null) {
+                    if (redditApp.isLoggedin == false) {
                         InvalidAccessDialog dialog = new InvalidAccessDialog();
                         dialog.show(getFragmentManager(), "invalid_access");
                     } else {
                         CommentInputFragment dialog = new CommentInputFragment();
 
-                        //put comment id in dialog
                         Bundle bundle = new Bundle();
                         bundle.putString("id", mComments.get(position).name);
                         dialog.setArguments(bundle);

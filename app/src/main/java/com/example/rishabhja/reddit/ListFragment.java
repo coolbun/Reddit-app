@@ -31,9 +31,9 @@ public class ListFragment extends Fragment {
     private ListAdapter adapter;
     private Callback getPosts;
     private String url;
-    private SQLHelper dbHelper;
+    private SQLHelper dbHelper=null;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private Boolean isHeader;
+    private Boolean isOffline;
     private PostFetcher postFetcher;
     private RedditApp redditApp;
 
@@ -48,9 +48,9 @@ public class ListFragment extends Fragment {
         initRecyclerView(view);
 
         url = getArguments().getString("URL");
-        isHeader = getArguments().getBoolean("isHeader");
-        postFetcher = new PostFetcher("");
-        dbHelper = null;
+        isOffline = getArguments().getBoolean("isOffliner");
+
+        postFetcher = new PostFetcher();
         redditApp=(RedditApp) getActivity().getApplication();
 
         if(getActivity() instanceof MainActivity)
@@ -58,12 +58,15 @@ public class ListFragment extends Fragment {
 
         if (getActivity() instanceof SearchResultsActivity) {
             showPosts(url);
-        } else if (!isHeader)
-            showOfflinePosts();
-        else
-            showPosts(url,
-                    getArguments().getString("key"),
-                    getArguments().getString("value"));
+        } else if (isOffline==true)
+            showPostFromDB();
+        else {
+            if(redditApp.isLoggedin)
+                showPosts(url,
+                        redditApp.getToken().getAccessToken());
+            else
+                showPosts(url);
+        }
         return view;
     }
 
@@ -90,12 +93,11 @@ public class ListFragment extends Fragment {
             @Override
             public void onRefresh() {
                 clearAdapter();
-                if (isHeader == false)
+                if (redditApp.isLoggedin == false)
                     showPosts(url);
                 else
                     showPosts(url,
-                            getArguments().getString("key"),
-                            getArguments().getString("value"));
+                            redditApp.getToken().getAccessToken());
             }
         });
     }
@@ -131,23 +133,6 @@ public class ListFragment extends Fragment {
         };
     }
 
-    private void showOfflinePosts() {
-        if(dbHelper==null)
-            return;
-        List<RedditCardPost> postList = dbHelper.getallPosts();
-        Log.e("size", String.valueOf(postList.size()));
-        for (RedditCardPost post : postList) {
-            data.add(post);
-        }
-        adapter.notifyDataSetChanged();
-    }
-
-    public void showPosts(String url, String... headers) {
-        postFetcher.setURL(url);
-        postFetcher.setCallback(getPosts);
-        postFetcher.execute(headers);
-    }
-
     public void refreshFragment(String url) {
         swipeRefreshLayout.setRefreshing(true);
         clearAdapter();
@@ -162,15 +147,31 @@ public class ListFragment extends Fragment {
     }
 
     private void loadMoreData() {
-        String url = new String(redditApp.getToken().getUrl() + "?after=");
-        Log.e("Load more",url);
+        String url = new String(redditApp.getCurrentUrl() + "?after=");
         url += data.get(data.size() - 1).id;
         postFetcher.setURL(url);
         postFetcher.setCallback(getPosts);
 
-        if(redditApp.getToken().getHeaderKey()!=null)
-            postFetcher.execute(redditApp.getToken().getHeaderKey(),redditApp.getToken().getHeaderValue());
+        if(redditApp.isLoggedin==true)
+            postFetcher.execute("Authorization",redditApp.getToken().getAccessToken());
         else
             postFetcher.execute();
+    }
+
+    private void showPostFromDB() {
+        if(dbHelper==null)
+            return;
+        List<RedditCardPost> postList = dbHelper.getallPosts();
+        Log.e("size", String.valueOf(postList.size()));
+        for (RedditCardPost post : postList) {
+            data.add(post);
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    public void showPosts(String url, String... headers) {
+        postFetcher.setURL(url);
+        postFetcher.setCallback(getPosts);
+        postFetcher.execute(headers);
     }
 }

@@ -10,6 +10,9 @@ import com.example.models.UserDetails;
 public class RedditApp extends Application {
 
     private UserDetails token;
+    public boolean isLoggedin;
+    private String currentUrl;
+
 
     public UserDetails getToken() {
         return token;
@@ -17,5 +20,13 @@ public class RedditApp extends Application {
 
     public void setToken(UserDetails token) {
         this.token = token;
+    }
+
+    public String getCurrentUrl() {
+        return currentUrl;
+    }
+
+    public void setCurrentUrl(String currentUrl) {
+        this.currentUrl = currentUrl;
     }
 }

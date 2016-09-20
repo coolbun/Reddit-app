@@ -61,7 +61,7 @@ public class CommentInputFragment extends DialogFragment {
     private void postComment() {
         RedditApp redditApp = (RedditApp) getActivity().getApplication();
         UserDetails userDetails = redditApp.getToken();
-        PostFetcher postFetcher = new PostFetcher(userDetails.getUrl() + "/api/comment");
+        PostFetcher postFetcher = new PostFetcher(redditApp.getCurrentUrl() + "/api/comment");
         postFetcher.setCallback(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -76,7 +76,7 @@ public class CommentInputFragment extends DialogFragment {
         });
         postFetcher.setFormValues("api_type","json","thing_id",commentId,"text",
                 comment);
-        postFetcher.execute(userDetails.getHeaderKey(),userDetails.getHeaderValue());
+        postFetcher.execute("Authorization",userDetails.getAccessToken());
     }
 
     public interface DialogToActivity {
