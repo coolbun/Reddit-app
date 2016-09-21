@@ -5,20 +5,19 @@ package com.example.rishabhja.reddit;
  */
 
 
+import android.support.v4.util.Pools;
 import android.util.Log;
 
 import com.example.PostFetcher;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 public class CommentProcessor {
 
@@ -90,30 +89,23 @@ public class CommentProcessor {
     // Load the comments as an ArrayList, so that it can be
     // easily passed to the ArrayAdapter
     void fetchComments() {
-        try {
-
-            PostFetcher postFetcher = new PostFetcher(url);
-            postFetcher.setCallback(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
+        PostFetcher getComments=new PostFetcher();
+        getComments.setURL(url);
+        ListenableFuture<String> listenableFuture = getComments.fetchComments();
+        Futures.addCallback(listenableFuture, new FutureCallback<String>() {
+            @Override
+            public void onSuccess(String comments) {
+                try {
+                    onCommentsResult(comments);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    try {
-                        final String comments = response.body().string();
-                        onCommentsResult(comments);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            postFetcher.execute();
-
-        } catch (Exception e) {
-            Log.d("ERROR", "Could not connect: " + e);
-        }
+            }
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.e(CommentProcessor.class.getName(),"Error connecting");
+            }
+        });
     }
 
     private void onCommentsResult(String raw) throws Exception {
@@ -129,8 +121,8 @@ public class CommentProcessor {
         sendResult.sendComments(comments);
     }
 
-    public interface SendResult {
-        public void sendComments(ArrayList<Comment> comments);
-    }
+public interface SendResult {
+    public void sendComments(ArrayList<Comment> comments);
+}
 
 }

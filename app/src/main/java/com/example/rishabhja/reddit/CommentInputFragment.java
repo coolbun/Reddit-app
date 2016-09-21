@@ -76,7 +76,9 @@ public class CommentInputFragment extends DialogFragment {
         });
         postFetcher.setFormValues("api_type","json","thing_id",commentId,"text",
                 comment);
-        postFetcher.execute("Authorization",userDetails.getAccessToken());
+        Log.e("Access token",userDetails.getAccessToken());
+        Log.e("id comment",commentId);
+        postFetcher.execute(userDetails.getAccessToken());
     }
 
     public interface DialogToActivity {

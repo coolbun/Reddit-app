@@ -16,14 +16,17 @@ import java.util.List;
 public class SQLHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "RedditPost.db";
-    public static final String TABLE_NAME = "Posts";
+    public static final String DATABASE_NAME = "PostsDatabase.db";
+    public static final String TABLE_NAME = "finalPosts";
     public static final String URL = "url";
     public static final String TITLE = "title";
     public static final String ID = "id";
     public static final String ImgURL = "imgURL";
     public static final String THUMBANILS = "thumbanil";
     public static final String COMMENTSURL = "commentsUrl";
+    public static final String NUMBEROFCOMMENTS = "num_comments";
+    public static final String UPVOTES = "upvotes_count";
+
 
     public SQLHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -37,7 +40,9 @@ public class SQLHelper extends SQLiteOpenHelper {
                 URL + " TEXT," +
                 ImgURL + " TEXT," +
                 THUMBANILS + " TEXT," +
-                COMMENTSURL + " TEXT" +
+                COMMENTSURL + " TEXT," +
+                NUMBEROFCOMMENTS + " INTEGER," +
+                UPVOTES + " INTEGER" +
                 ");";
         db.execSQL(SQL_CREATE_ENTRIES);
     }
@@ -62,6 +67,8 @@ public class SQLHelper extends SQLiteOpenHelper {
         values.put(TITLE, post.title);
         values.put(THUMBANILS, post.thumbanil);
         values.put(COMMENTSURL,post.commentsUrl);
+        values.put(NUMBEROFCOMMENTS,post.num_comments);
+        values.put(UPVOTES,post.upvotes);
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
@@ -77,7 +84,7 @@ public class SQLHelper extends SQLiteOpenHelper {
             cursor.moveToFirst();
             post = new RedditCardPost(cursor.getString(0),
                     cursor.getString(1), cursor.getString(2), cursor.getString(3),
-                    cursor.getString(4),cursor.getString(5));
+                    cursor.getString(4),cursor.getString(5),cursor.getInt(6),cursor.getInt(7));
         }
         return post;
     }
@@ -97,7 +104,9 @@ public class SQLHelper extends SQLiteOpenHelper {
                                 cursor.getString(2),
                                 cursor.getString(3),
                                 cursor.getString(4),
-                                cursor.getString(5));
+                                cursor.getString(5),
+                                cursor.getInt(6),
+                                cursor.getInt(7));
                         postList.add(post);
                     } while (cursor.moveToNext());
                 }

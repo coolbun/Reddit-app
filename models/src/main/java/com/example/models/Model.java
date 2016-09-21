@@ -70,9 +70,21 @@ public class Model {
                 data.setid(id);
             }
 
+            public int getNum_comments(){
+                return data.getNum_comments();
+            }
+
             public void setImgURL(String ImgUrl) {
                 present_imgurl = true;
                 imgurl = ImgUrl;
+            }
+
+            public int getUpvotes(){
+                return data.getUps();
+            }
+
+            public void setCommentURL(String commentURL) {
+                data.setCommentURL( commentURL);
             }
 
             public static class Content {
@@ -88,6 +100,10 @@ public class Model {
                 private Images preview;
                 @SerializedName("permalink")
                 private String commentsUrl;
+                @SerializedName("num_comments")
+                private int num_comments;
+                @SerializedName("ups")
+                private int ups;
 
                 public String getTitle() {
                     return title;
@@ -125,6 +141,18 @@ public class Model {
 
                 public String getCommentsUrl() {
                     return commentsUrl;
+                }
+
+                public int getNum_comments() {
+                    return num_comments;
+                }
+
+                public int getUps() {
+                    return ups;
+                }
+
+                public void setCommentURL(String commentURL) {
+                    this.commentsUrl = commentURL;
                 }
 
                 public static class Images {

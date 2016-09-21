@@ -4,11 +4,15 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.example.models.AuthorizationToken;
+import com.example.models.CaptchaResponse;
 import com.example.models.SubRedditModel;
 import com.example.models.UserDetails;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Map;
@@ -58,7 +62,7 @@ public class PostFetcher {
         Request request;
         int len = args.length;
         if (len > 0) {
-            for (int i = 0; i < len; i ++) {
+            for (int i = 0; i < len; i++) {
                 builder.addHeader("Authorization", args[i]);
             }
         }
@@ -166,5 +170,61 @@ public class PostFetcher {
         });
         networkCaller.execute(args);
         return future;
+    }
+
+    public ListenableFuture<String> fetchComments() {
+        final SettableFuture future = SettableFuture.create();
+        PostFetcher postFetcher = new PostFetcher(url);
+        postFetcher.setCallback(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    final String comments = response.body().string();
+                    future.set(comments);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        postFetcher.execute();
+        return future;
+    }
+
+    public ListenableFuture<String> getCaptchaURL(String url, String... headers) {
+        final SettableFuture<String> settableFuture = SettableFuture.create();
+
+        PostFetcher fetchCaptchaIden = new PostFetcher();
+        fetchCaptchaIden.setURL(url);
+        fetchCaptchaIden.setFormValues("api_type", "json");
+        fetchCaptchaIden.setCallback(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(PostFetcher.class.getName(), "Captcha fetch failed");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Gson gson = new Gson();
+                String responseData = response.body().string();
+
+                try {
+                    JSONObject data = new JSONObject(responseData);
+                    String idenJson = data.getJSONObject("json").toString();
+                    Log.e("IDENJSON", idenJson);
+                    CaptchaResponse captcha = gson.fromJson(idenJson, CaptchaResponse.class);
+                    Log.e("Captcha iden resp", responseData);
+                    settableFuture.set("https://www.reddit.com/captcha/iden?iden=" + captcha.getIden());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        fetchCaptchaIden.execute(headers);
+        return settableFuture;
     }
 }

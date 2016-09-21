@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
     private PostFetcher fetchFromURL;
     private UserDetails userDetails;
     private UserViewModel userViewModel;
-    private RedditApp applicationContent;
+    private RedditApp redditApp;
     private NavHeaderMainBinding bind;
     private Context context;
     private DrawerLayout mdrawer;
@@ -73,10 +73,11 @@ public class MainActivity extends AppCompatActivity
         context = this;
         mdrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         tb = (Toolbar) findViewById(R.id.main_toolbar);
-        applicationContent = (RedditApp) getApplication();
+        redditApp = (RedditApp) getApplication();
 
-        initUI();
+        initDrawer();
         saveToApplication();
+        initUI();
         setSortTypes();
         setNavDrawer();
         setClickListeners();
@@ -97,10 +98,11 @@ public class MainActivity extends AppCompatActivity
             userDetails = new UserDetails();
             userDetails.setName(getFromMemory("userName"));
             userDetails.setAccessToken(getFromMemory("access_token"));
+            Log.e("name of user", userDetails.getName());
 
-            applicationContent.isLoggedin = true;
-            applicationContent.setToken(userDetails);
-            applicationContent.setCurrentUrl(OATH_URL);
+            redditApp.isLoggedin = true;
+            redditApp.setToken(userDetails);
+            redditApp.setCurrentUrl(OATH_URL);
 
             //Binding updates
             userViewModel.name.set(userDetails.getName());
@@ -108,9 +110,9 @@ public class MainActivity extends AppCompatActivity
         } else {
             userDetails = null;
 
-            applicationContent.isLoggedin = false;
-            applicationContent.setToken(null);
-            applicationContent.setCurrentUrl(BASE_URL);
+            redditApp.isLoggedin = false;
+            redditApp.setToken(null);
+            redditApp.setCurrentUrl(BASE_URL);
 
             //Binding updates
             userViewModel.name.set("Login");
@@ -119,14 +121,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initUI() {
-        setStausBarcolor();
-        setSupportActionBar(tb);
-        initDrawer();
 
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         Fragment fragment = new com.example.rishabhja.reddit.ListFragment();
         Bundle bundle = new Bundle();
-        bundle.putString("URL", BASE_URL + "/.json");
+        bundle.putString("URL", redditApp.getCurrentUrl() + "/.json");
+        bundle.putBoolean("isOffline", true);
         fragment.setArguments(bundle);
         transaction.add(R.id.fragment_container, fragment).commit();
     }
@@ -168,7 +168,8 @@ public class MainActivity extends AppCompatActivity
                 mdrawer.closeDrawers();
                 storeToMemory("access_token", null);
                 saveToApplication();
-                updateList(applicationContent.getCurrentUrl() + "/.json");
+                updateList(redditApp.getCurrentUrl() + "/.json");
+                setNavDrawer();
             }
         });
     }
@@ -177,7 +178,6 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == LOGIN_REQUEST_CODE && resultCode == 1) {
-            progressBar.setVisibility(View.VISIBLE);
             ListenableFuture<AuthorizationToken> listenableFuture = getAccessToken.onResult(data);
 
             Futures.addCallback(listenableFuture, new FutureCallback<AuthorizationToken>() {
@@ -211,6 +211,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initDrawer() {
+        setStausBarcolor();
+        setSupportActionBar(tb);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, tb, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -231,7 +233,7 @@ public class MainActivity extends AppCompatActivity
         drawer
      */
     public void setNavDrawer() {
-        String subRedditsurl = applicationContent.getCurrentUrl() + "/subreddits/.json";
+        String subRedditsurl = redditApp.getCurrentUrl() + "/subreddits/.json";
         final Menu menu = navigationView.getMenu();
 
         //Clear the current menu
@@ -241,7 +243,9 @@ public class MainActivity extends AppCompatActivity
         for (String sortTitle : sortTypes)
             subMenu.add(sortTitle);
 
+
         final SubMenu submenu = menu.addSubMenu("Reddit Picks");
+
         String accessToken = null;
         if (userDetails != null)
             accessToken = userDetails.getAccessToken();
@@ -273,9 +277,8 @@ public class MainActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                //refreshAdapter(OATH_URL + "/.json");
-                progressBar.setVisibility(View.GONE);
                 saveToApplication();
+                updateList(redditApp.getCurrentUrl() + "/.json");
                 setNavDrawer();
             }
         });
@@ -318,15 +321,18 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         DrawerLayout mdrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        //if(item.getItemId())
+
         if (mdrawer.isDrawerOpen(GravityCompat.START))
             mdrawer.closeDrawer(GravityCompat.START);
 
         if (item.getTitle().equals(sortTypes.get(FRONT_INDEX)))
-            updateList(BASE_URL + "/.json");
+            updateList(redditApp.getCurrentUrl() + "/.json");
         else if (sortTypes.contains(item.getTitle()))
-            updateList(BASE_URL + "/" + new String((String) item.getTitle()).toLowerCase() + "/.json");
+            updateList(redditApp.getCurrentUrl() + "/" + new String((String) item.getTitle()).toLowerCase() + "/.json");
         else
-            updateList(BASE_URL + "/" + item.getTitle() + "/.json");
+            updateList(redditApp.getCurrentUrl() + "/" + item.getTitle() + "/.json");
         return true;
     }
 
@@ -337,11 +343,12 @@ public class MainActivity extends AppCompatActivity
                 finish();
                 return true;
             case R.id.add_post:
-                if (applicationContent.isLoggedin == false) {
+                if (redditApp.isLoggedin == false) {
                     InvalidAccessDialog dialog = new InvalidAccessDialog();
                     dialog.show(getFragmentManager(), "invalid access");
                 } else {
-                    //Intent intent = new Intent(context, );
+                    Intent intent = new Intent(context, AddPostActivity.class);
+                    startActivity(intent);
                 }
                 return true;
         }

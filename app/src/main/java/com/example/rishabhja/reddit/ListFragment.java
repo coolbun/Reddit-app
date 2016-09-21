@@ -31,12 +31,11 @@ public class ListFragment extends Fragment {
     private ListAdapter adapter;
     private Callback getPosts;
     private String url;
-    private SQLHelper dbHelper=null;
+    private SQLHelper dbHelper = null;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Boolean isOffline;
     private PostFetcher postFetcher;
     private RedditApp redditApp;
-
 
 
     @Override
@@ -48,20 +47,26 @@ public class ListFragment extends Fragment {
         initRecyclerView(view);
 
         url = getArguments().getString("URL");
-        isOffline = getArguments().getBoolean("isOffliner");
+        isOffline = getArguments().getBoolean("isOffline");
 
         postFetcher = new PostFetcher();
-        redditApp=(RedditApp) getActivity().getApplication();
+        redditApp = (RedditApp) getActivity().getApplication();
 
-        if(getActivity() instanceof MainActivity)
-            dbHelper=new SQLHelper(getActivity());
+        dbHelper = new SQLHelper(getActivity());
+
+        Log.e("here", String.valueOf(isOffline));
+        if (getActivity() instanceof MainActivity) ;
+        else
+            dbHelper=null;
 
         if (getActivity() instanceof SearchResultsActivity) {
             showPosts(url);
-        } else if (isOffline==true)
+        } else if (isOffline == true) {
+            Log.e("isffline","true");
             showPostFromDB();
+        }
         else {
-            if(redditApp.isLoggedin)
+            if (redditApp.isLoggedin)
                 showPosts(url,
                         redditApp.getToken().getAccessToken());
             else
@@ -80,7 +85,6 @@ public class ListFragment extends Fragment {
 
         data = new ArrayList<RedditCardPost>();
         adapter = new ListAdapter(data);
-
         recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
@@ -95,9 +99,10 @@ public class ListFragment extends Fragment {
                 clearAdapter();
                 if (redditApp.isLoggedin == false)
                     showPosts(url);
-                else
+                else {
                     showPosts(url,
                             redditApp.getToken().getAccessToken());
+                }
             }
         });
     }
@@ -113,13 +118,19 @@ public class ListFragment extends Fragment {
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 final String responseData = response.body().string();
+                Log.e("response",responseData);
                 Gson gson = new Gson();
                 Model model = gson.fromJson(responseData, Model.class);
                 for (Model.Data.Container c : model.getChildrenList()) {
+                    String commentURL=c.getCommentsUrl();
+                    if(commentURL.endsWith("?ref=search_posts"))
+                        commentURL=commentURL.substring(0,commentURL.length()-17);
+                    c.setCommentURL(commentURL);
                     RedditCardPost post = new RedditCardPost(c.getId(), c.getTitle(), c.getUrl(),
-                            c.getImgURL(), c.getThumbnail(), c.getCommentsUrl());
+                            c.getImgURL(), c.getThumbnail(), c.getCommentsUrl(), c.getNum_comments(),
+                            c.getUpvotes());
                     data.add(post);
-                    if(dbHelper!=null)
+                    if (dbHelper != null)
                         dbHelper.addPost(post);
                 }
                 getActivity().runOnUiThread(new Runnable() {
@@ -136,30 +147,36 @@ public class ListFragment extends Fragment {
     public void refreshFragment(String url) {
         swipeRefreshLayout.setRefreshing(true);
         clearAdapter();
+
+        //change the url of the fragment container
         this.url = url;
-        showPosts(url);
+
+        if(redditApp.isLoggedin)
+            showPosts(url,redditApp.getToken().getAccessToken());
+        else
+            showPosts(url);
     }
 
     private void clearAdapter() {
-        if(dbHelper!=null)
+        if (dbHelper != null)
             dbHelper.deleteAll();
         data.clear();
     }
 
     private void loadMoreData() {
-        String url = new String(redditApp.getCurrentUrl() + "?after=");
+        String url = this.url + "?after=";
         url += data.get(data.size() - 1).id;
         postFetcher.setURL(url);
         postFetcher.setCallback(getPosts);
 
-        if(redditApp.isLoggedin==true)
-            postFetcher.execute("Authorization",redditApp.getToken().getAccessToken());
+        if (redditApp.isLoggedin == true)
+            postFetcher.execute("Authorization", redditApp.getToken().getAccessToken());
         else
             postFetcher.execute();
     }
 
     private void showPostFromDB() {
-        if(dbHelper==null)
+        if (dbHelper == null)
             return;
         List<RedditCardPost> postList = dbHelper.getallPosts();
         Log.e("size", String.valueOf(postList.size()));

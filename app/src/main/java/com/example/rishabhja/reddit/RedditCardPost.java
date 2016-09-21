@@ -18,9 +18,11 @@ public class RedditCardPost {
     public final String id;
     public final String commentsUrl;
     private final String BASE_URL="http://www.reddit.com";
+    public final int num_comments;
+    public final int upvotes;
 
     public RedditCardPost(String id, String title, String url, String imgurl,
-                          String thumbanil, String commentsUrl) {
+                          String thumbanil, String commentsUrl,int num_comments,int ups) {
         this.id = id;
         this.title = title;
         this.url = url;
@@ -28,6 +30,8 @@ public class RedditCardPost {
         this.imgURL = imgurl;
         this.thumbanil = thumbanil;
         this.commentsUrl=commentsUrl;
+        this.num_comments=num_comments;
+        this.upvotes=ups;
     }
 
 
@@ -60,8 +64,10 @@ public class RedditCardPost {
 
     public void onCommentClick(View view) {
         Intent intent = new Intent(view.getContext(), CommentsActivity.class);
+        Log.e("HERE is",commentsUrl);
         intent.putExtra("URL", BASE_URL+commentsUrl);
         intent.putExtra("Title",title);
+        intent.putExtra("NAME",id);
         view.getContext().startActivity(intent);
     }
 
@@ -70,5 +76,13 @@ public class RedditCardPost {
         Log.e("url",url);
         intent.putExtra("URL", url);
         view.getContext().startActivity(intent);
+    }
+
+    public String getNumber_comments(){
+        return String.valueOf(num_comments)+" Comments";
+    }
+
+    public String getUpvotes(){
+        return String.valueOf(upvotes)+" Upvotes";
     }
 }

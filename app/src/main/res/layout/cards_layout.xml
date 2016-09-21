@@ -70,13 +70,23 @@
                         android:paddingLeft="8dp"
                         android:paddingTop="8dp"
                         android:textColor="#000000"
-                        android:text="Comments"
+                        android:text="@{cardPost.getNumber_comments}"
                         android:onClick="@{cardPost.onCommentClick}" />
+
 
                     <View
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        android:paddingLeft="8dp"
+                        android:paddingTop="8dp"
+                        android:textColor="#000000"
+                        android:layout_marginRight="10dp"
+                        android:text="@{cardPost.getUpvotes}"/>
 
                     <ImageButton
                         android:id="@+id/upvote"
