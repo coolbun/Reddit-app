@@ -33,18 +33,44 @@
                 android:layout_marginBottom="5dp"
                 android:orientation="vertical">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    >
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:id="@+id/subredditName"
+                        android:paddingTop="8dp"
+                        android:paddingLeft="5dp"
+                        android:text="r/AskReddit"/>
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"/>
+                    <Button
+                        android:layout_width="30dp"
+                        android:layout_height="wrap_content"
+                        android:text="&#8942;"
+                        android:id="@+id/popup"
+                        android:textColor="@android:color/background_light"
+                        android:textSize="12dp"
+
+                        />
+                </LinearLayout>
+
                 <TextView
                     android:id="@+id/textViewName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="10dp"
+                    android:onClick="@{cardPost.onTitleClick}"
                     android:paddingBottom="5dp"
-                    android:textSize="15dp"
-                    android:textColor="#000000"
                     android:paddingLeft="5dp"
                     android:text="@{cardPost.title}"
-                    android:onClick="@{cardPost.onTitleClick}"
+                    android:textColor="#000000"
+                    android:textSize="15dp"
                     tools:text="hello" />
 
                 <ImageView
@@ -67,11 +93,11 @@
                     <TextView
                         android:layout_width="100dp"
                         android:layout_height="match_parent"
+                        android:onClick="@{cardPost.onCommentClick}"
                         android:paddingLeft="8dp"
                         android:paddingTop="8dp"
-                        android:textColor="#000000"
                         android:text="@{cardPost.getNumber_comments}"
-                        android:onClick="@{cardPost.onCommentClick}" />
+                        android:textColor="#000000" />
 
 
                     <View
@@ -82,11 +108,11 @@
                     <TextView
                         android:layout_width="100dp"
                         android:layout_height="match_parent"
+                        android:layout_marginRight="10dp"
                         android:paddingLeft="8dp"
                         android:paddingTop="8dp"
-                        android:textColor="#000000"
-                        android:layout_marginRight="10dp"
-                        android:text="@{cardPost.getUpvotes}"/>
+                        android:text="@{cardPost.getUpvotes}"
+                        android:textColor="#000000" />
 
                     <ImageButton
                         android:id="@+id/upvote"

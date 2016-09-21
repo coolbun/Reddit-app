@@ -4,8 +4,10 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.databinding.BindingAdapter;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 
 import com.squareup.picasso.Picasso;
 
@@ -19,7 +21,9 @@ public class RedditCardPost {
     public final String commentsUrl;
     private final String BASE_URL="http://www.reddit.com";
     public final int num_comments;
-    public final int upvotes;
+    public int upvotes;
+    public boolean alreadyUpvoted;
+    public boolean alreadyDownvoted;
 
     public RedditCardPost(String id, String title, String url, String imgurl,
                           String thumbanil, String commentsUrl,int num_comments,int ups) {
@@ -32,6 +36,8 @@ public class RedditCardPost {
         this.commentsUrl=commentsUrl;
         this.num_comments=num_comments;
         this.upvotes=ups;
+        alreadyUpvoted=false;
+        alreadyUpvoted=false;
     }
 
 
@@ -77,6 +83,7 @@ public class RedditCardPost {
         intent.putExtra("URL", url);
         view.getContext().startActivity(intent);
     }
+
 
     public String getNumber_comments(){
         return String.valueOf(num_comments)+" Comments";

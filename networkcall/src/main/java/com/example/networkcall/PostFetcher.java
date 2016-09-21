@@ -227,4 +227,48 @@ public class PostFetcher {
         fetchCaptchaIden.execute(headers);
         return settableFuture;
     }
+
+    public ListenableFuture<Boolean> deletePost(String id,String... headers) {
+        final SettableFuture<Boolean> future= SettableFuture.create();
+        PostFetcher postFetcher=new PostFetcher();
+        postFetcher.setURL("https://oauth.reddit.com/api/hide");
+        postFetcher.setFormValues("id",id);
+        postFetcher.setCallback(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(PostFetcher.class.getName(),"Hide post failed");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.e("Response on hide",response.body().string());
+                future.set(new Boolean(true));
+            }
+        });
+        postFetcher.execute(headers);
+        return future;
+    }
+
+    public ListenableFuture<Boolean> votePost(String id, String accessToken,int dir) {
+        final SettableFuture<Boolean> future= SettableFuture.create();
+        PostFetcher postFetcher=new PostFetcher();
+        postFetcher.setURL("https://oauth.reddit.com/api/vote");
+        postFetcher.setFormValues("dir", String.valueOf(dir));
+        postFetcher.setFormValues("id",id);
+        postFetcher.setFormValues("rank","2");
+        postFetcher.setCallback(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(PostFetcher.class.getName(),"Hide post failed");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.e("Response on vote",response.body().string());
+                future.set(new Boolean(true));
+            }
+        });
+        postFetcher.execute(accessToken);
+        return future;
+    }
 }

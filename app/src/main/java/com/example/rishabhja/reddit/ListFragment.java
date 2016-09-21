@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 
 import com.example.PostFetcher;
 import com.example.models.Model;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -57,15 +59,14 @@ public class ListFragment extends Fragment {
         Log.e("here", String.valueOf(isOffline));
         if (getActivity() instanceof MainActivity) ;
         else
-            dbHelper=null;
+            dbHelper = null;
 
         if (getActivity() instanceof SearchResultsActivity) {
             showPosts(url);
         } else if (isOffline == true) {
-            Log.e("isffline","true");
+            Log.e("isffline", "true");
             showPostFromDB();
-        }
-        else {
+        } else {
             if (redditApp.isLoggedin)
                 showPosts(url,
                         redditApp.getToken().getAccessToken());
@@ -84,7 +85,32 @@ public class ListFragment extends Fragment {
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 
         data = new ArrayList<RedditCardPost>();
-        adapter = new ListAdapter(data);
+
+        adapter = new ListAdapter(data, new ListAdapter.NotificationsInterface() {
+            @Override
+            public void notifyDeletion(RedditCardPost post) {
+                if (redditApp.isLoggedin) {
+                    Log.e("ID", post.id);
+                    ListenableFuture<Boolean> future = postFetcher.deletePost(post.id,
+                            redditApp.getToken().getAccessToken());
+                }
+            }
+
+            @Override
+            public boolean notifyVote(RedditCardPost post,int dir) {
+                if (redditApp.isLoggedin) {
+                    Log.e("ID", post.id);
+                    ListenableFuture<Boolean> future = postFetcher.votePost(post.id,
+                            redditApp.getToken().getAccessToken(),dir);
+                    return true;
+                }
+                else{
+                    InvalidAccessDialog dialog=new InvalidAccessDialog();
+                    dialog.show(getFragmentManager(), "invalid access");
+                    return false;
+                }
+            }
+        });
         recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
@@ -118,13 +144,13 @@ public class ListFragment extends Fragment {
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 final String responseData = response.body().string();
-                Log.e("response",responseData);
+                Log.e("response", responseData);
                 Gson gson = new Gson();
                 Model model = gson.fromJson(responseData, Model.class);
                 for (Model.Data.Container c : model.getChildrenList()) {
-                    String commentURL=c.getCommentsUrl();
-                    if(commentURL.endsWith("?ref=search_posts"))
-                        commentURL=commentURL.substring(0,commentURL.length()-17);
+                    String commentURL = c.getCommentsUrl();
+                    if (commentURL.endsWith("?ref=search_posts"))
+                        commentURL = commentURL.substring(0, commentURL.length() - 17);
                     c.setCommentURL(commentURL);
                     RedditCardPost post = new RedditCardPost(c.getId(), c.getTitle(), c.getUrl(),
                             c.getImgURL(), c.getThumbnail(), c.getCommentsUrl(), c.getNum_comments(),
@@ -151,8 +177,8 @@ public class ListFragment extends Fragment {
         //change the url of the fragment container
         this.url = url;
 
-        if(redditApp.isLoggedin)
-            showPosts(url,redditApp.getToken().getAccessToken());
+        if (redditApp.isLoggedin)
+            showPosts(url, redditApp.getToken().getAccessToken());
         else
             showPosts(url);
     }
@@ -166,15 +192,14 @@ public class ListFragment extends Fragment {
     private void loadMoreData() {
         String url = this.url + "?after=";
         url += data.get(data.size() - 1).id;
-        Log.e("URL for load more",url);
+        Log.e("URL for load more", url);
         postFetcher.setURL(url);
         postFetcher.setCallback(getPosts);
 
         if (redditApp.isLoggedin == true) {
-            Log.e("TOKEN",redditApp.getToken().getAccessToken());
+            Log.e("TOKEN", redditApp.getToken().getAccessToken());
             postFetcher.execute(redditApp.getToken().getAccessToken());
-        }
-        else
+        } else
             postFetcher.execute();
     }
 
