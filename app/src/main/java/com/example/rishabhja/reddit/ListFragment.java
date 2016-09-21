@@ -166,11 +166,14 @@ public class ListFragment extends Fragment {
     private void loadMoreData() {
         String url = this.url + "?after=";
         url += data.get(data.size() - 1).id;
+        Log.e("URL for load more",url);
         postFetcher.setURL(url);
         postFetcher.setCallback(getPosts);
 
-        if (redditApp.isLoggedin == true)
-            postFetcher.execute("Authorization", redditApp.getToken().getAccessToken());
+        if (redditApp.isLoggedin == true) {
+            Log.e("TOKEN",redditApp.getToken().getAccessToken());
+            postFetcher.execute(redditApp.getToken().getAccessToken());
+        }
         else
             postFetcher.execute();
     }

@@ -94,26 +94,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void saveToApplication() {
-        if (getFromMemory("access_token") != null) {
-            userDetails = new UserDetails();
-            userDetails.setName(getFromMemory("userName"));
-            userDetails.setAccessToken(getFromMemory("access_token"));
-            Log.e("name of user", userDetails.getName());
-
-            redditApp.isLoggedin = true;
-            redditApp.setToken(userDetails);
-            redditApp.setCurrentUrl(OATH_URL);
-
+        redditApp.saveToApplication();
+        if (redditApp.getFromMemory("access_token") != null) {
             //Binding updates
-            userViewModel.name.set(userDetails.getName());
+            userViewModel.name.set(redditApp.getToken().getName());
             userViewModel.logout.set("Logout");
         } else {
-            userDetails = null;
-
-            redditApp.isLoggedin = false;
-            redditApp.setToken(null);
-            redditApp.setCurrentUrl(BASE_URL);
-
             //Binding updates
             userViewModel.name.set("Login");
             userViewModel.logout.set("");
@@ -121,7 +107,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initUI() {
-
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         Fragment fragment = new com.example.rishabhja.reddit.ListFragment();
         Bundle bundle = new Bundle();
@@ -166,7 +151,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 mdrawer.closeDrawers();
-                storeToMemory("access_token", null);
+                redditApp.storeToMemory("access_token", null);
                 saveToApplication();
                 updateList(redditApp.getCurrentUrl() + "/.json");
                 setNavDrawer();
@@ -183,16 +168,16 @@ public class MainActivity extends AppCompatActivity
             Futures.addCallback(listenableFuture, new FutureCallback<AuthorizationToken>() {
                 @Override
                 public void onSuccess(AuthorizationToken authorizationToken) {
-                    storeToMemory("access_token", "bearer " + authorizationToken.getAccess_token());
+                    redditApp.storeToMemory("access_token", "bearer " + authorizationToken.getAccess_token());
                     PostFetcher networkCaller = new PostFetcher();
-                    Log.e("Access_token", getFromMemory("access_token"));
+                    Log.e("Access_token", redditApp.getFromMemory("access_token"));
                     ListenableFuture<UserDetails> future = networkCaller.getUser(OATH_URL + "/api/v1/me/.json",
-                            getFromMemory("access_token"));
+                            redditApp.getFromMemory("access_token"));
 
                     Futures.addCallback(future, new FutureCallback<UserDetails>() {
                         @Override
                         public void onSuccess(final UserDetails user) {
-                            storeToMemory("userName", user.getName());
+                            redditApp.storeToMemory("userName", user.getName());
                             updateOnLogin(user);
                         }
 
@@ -247,8 +232,8 @@ public class MainActivity extends AppCompatActivity
         final SubMenu submenu = menu.addSubMenu("Reddit Picks");
 
         String accessToken = null;
-        if (userDetails != null)
-            accessToken = userDetails.getAccessToken();
+        if (redditApp.getToken() != null)
+            accessToken = redditApp.getToken().getAccessToken();
 
         ListenableFuture<SubRedditModel> modelFuture = fetchFromURL.getSubRedditModel(
                 subRedditsurl,
@@ -354,17 +339,5 @@ public class MainActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
-
-
-    public void storeToMemory(String key, String value) {
-        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(key, value);
-        editor.commit();
-    }
-
-    public String getFromMemory(String key) {
-        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
-        return sharedPreferences.getString(key, null);
-    }
 }
+
