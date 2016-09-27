@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.models.AuthorizationToken;
 import com.example.models.CaptchaResponse;
+import com.example.models.Model;
 import com.example.models.SubRedditModel;
 import com.example.models.UserDetails;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -28,6 +29,7 @@ import okhttp3.Response;
 
 public class PostFetcher {
 
+    public static final String TAG = PostFetcher.class.getName();
     private String url;
     private Callback callback;
     private Request.Builder builder;
@@ -61,7 +63,7 @@ public class PostFetcher {
                 .url(url);
         Request request;
         int len = args.length;
-        if (len > 0) {
+        if (len > 0 && args[0] != null) {
             for (int i = 0; i < len; i++) {
                 builder.addHeader("Authorization", args[i]);
             }
@@ -228,20 +230,20 @@ public class PostFetcher {
         return settableFuture;
     }
 
-    public ListenableFuture<Boolean> deletePost(String id,String... headers) {
-        final SettableFuture<Boolean> future= SettableFuture.create();
-        PostFetcher postFetcher=new PostFetcher();
+    public ListenableFuture<Boolean> deletePost(String id, String... headers) {
+        final SettableFuture<Boolean> future = SettableFuture.create();
+        PostFetcher postFetcher = new PostFetcher();
         postFetcher.setURL("https://oauth.reddit.com/api/hide");
-        postFetcher.setFormValues("id",id);
+        postFetcher.setFormValues("id", id);
         postFetcher.setCallback(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Log.e(PostFetcher.class.getName(),"Hide post failed");
+                Log.e(PostFetcher.class.getName(), "Hide post failed");
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.e("Response on hide",response.body().string());
+                Log.e("Response on hide", response.body().string());
                 future.set(new Boolean(true));
             }
         });
@@ -249,26 +251,75 @@ public class PostFetcher {
         return future;
     }
 
-    public ListenableFuture<Boolean> votePost(String id, String accessToken,int dir) {
-        final SettableFuture<Boolean> future= SettableFuture.create();
-        PostFetcher postFetcher=new PostFetcher();
+    public ListenableFuture<Boolean> votePost(String id, String accessToken, int dir) {
+        final SettableFuture<Boolean> future = SettableFuture.create();
+        PostFetcher postFetcher = new PostFetcher();
         postFetcher.setURL("https://oauth.reddit.com/api/vote");
-        postFetcher.setFormValues("dir", String.valueOf(dir));
-        postFetcher.setFormValues("id",id);
-        postFetcher.setFormValues("rank","2");
+        String dirString = String.valueOf(dir);
+        postFetcher.setFormValues("dir", dirString,
+                "id", id,
+                "rank", "2");
         postFetcher.setCallback(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Log.e(PostFetcher.class.getName(),"Hide post failed");
+                future.setException(e);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.e("Response on vote",response.body().string());
-                future.set(new Boolean(true));
+                Log.d(TAG, "response code: " + response.code());
+                Log.e("Response on vote", response.body().string());
+                future.set(Boolean.TRUE);
             }
         });
         postFetcher.execute(accessToken);
+        return future;
+    }
+
+    public ListenableFuture<Model> getPosts(String url, String... headers) {
+        PostFetcher postFetch = new PostFetcher();
+        postFetch.setURL(url);
+        final SettableFuture future = SettableFuture.create();
+
+        postFetch.setCallback(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                future.setException(e);
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                final String responseData = response.body().string();
+                Gson gson = new Gson();
+                Model model = gson.fromJson(responseData, Model.class);
+                future.set(model);
+            }
+        });
+        postFetch.execute(headers);
+        return future;
+    }
+
+    public ListenableFuture<Model> fetchUserSubreddits(String url, String ...headers) {
+        PostFetcher postFetch = new PostFetcher();
+        postFetch.setURL(url);
+        final SettableFuture future = SettableFuture.create();
+
+        postFetch.setCallback(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                future.setException(e);
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                final String responseData = response.body().string();
+                Log.e("my subreddit",responseData);
+                Gson gson = new Gson();
+                Model model = gson.fromJson(responseData, Model.class);
+                future.set(model);
+            }
+        });
+        postFetch.execute(headers);
         return future;
     }
 }

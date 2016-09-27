@@ -87,6 +87,7 @@ public class CommentsActivity extends AppCompatActivity {
         initListView();
         Toolbar tb = (Toolbar) findViewById(R.id.commentsToolbar);
         setSupportActionBar(tb);
+        setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 

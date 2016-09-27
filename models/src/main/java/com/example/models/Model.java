@@ -49,8 +49,8 @@ public class Model {
                     return imgurl;
                 return data.getImgUrl();
             }
-            
-            public String getCommentsUrl(){
+
+            public String getCommentsUrl() {
                 return data.getCommentsUrl();
             }
 
@@ -70,7 +70,7 @@ public class Model {
                 data.setid(id);
             }
 
-            public int getNum_comments(){
+            public int getNum_comments() {
                 return data.getNum_comments();
             }
 
@@ -79,12 +79,20 @@ public class Model {
                 imgurl = ImgUrl;
             }
 
-            public int getUpvotes(){
+            public String getSubreddit() {
+                return data.getSubreddit();
+            }
+
+            public int getUpvotes() {
                 return data.getUps();
             }
 
             public void setCommentURL(String commentURL) {
-                data.setCommentURL( commentURL);
+                data.setCommentURL(commentURL);
+            }
+
+            public String getDisplayName() {
+                return data.getDisplayName();
             }
 
             public static class Content {
@@ -104,6 +112,10 @@ public class Model {
                 private int num_comments;
                 @SerializedName("ups")
                 private int ups;
+                @SerializedName("subreddit")
+                private String subreddit;
+                @SerializedName("display_name")
+                private String displayName;
 
                 public String getTitle() {
                     return title;
@@ -153,6 +165,14 @@ public class Model {
 
                 public void setCommentURL(String commentURL) {
                     this.commentsUrl = commentURL;
+                }
+
+                public String getSubreddit() {
+                    return subreddit;
+                }
+
+                public String getDisplayName() {
+                    return displayName;
                 }
 
                 public static class Images {

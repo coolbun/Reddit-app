@@ -11,4 +11,7 @@
     <color name="secondary_text">#727272</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>
+    <color name="default_vote">#00BFFF</color>
+    <color name="voted">#000080</color>
+    <color name="disabled">#D3D3D3</color>
 </resources>

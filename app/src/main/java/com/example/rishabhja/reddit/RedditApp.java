@@ -19,6 +19,16 @@ public class RedditApp extends Application {
     public boolean isLoggedin;
     private String currentUrl;
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+    }
+
     public void saveToApplication() {
         if (getFromMemory("access_token") != null) {
             token = new UserDetails();

@@ -19,25 +19,28 @@ public class RedditCardPost {
     public final String thumbanil;
     public final String id;
     public final String commentsUrl;
-    private final String BASE_URL="http://www.reddit.com";
+    private final String BASE_URL = "http://www.reddit.com";
     public final int num_comments;
     public int upvotes;
     public boolean alreadyUpvoted;
     public boolean alreadyDownvoted;
+    public String subreddit;
 
     public RedditCardPost(String id, String title, String url, String imgurl,
-                          String thumbanil, String commentsUrl,int num_comments,int ups) {
+                          String thumbanil, String commentsUrl, int num_comments, int ups, String
+                                  subreddit) {
         this.id = id;
         this.title = title;
         this.url = url;
-        Log.e("insert url",url);
+        Log.e("insert url", url);
         this.imgURL = imgurl;
         this.thumbanil = thumbanil;
-        this.commentsUrl=commentsUrl;
-        this.num_comments=num_comments;
-        this.upvotes=ups;
-        alreadyUpvoted=false;
-        alreadyUpvoted=false;
+        this.commentsUrl = commentsUrl;
+        this.num_comments = num_comments;
+        this.upvotes = ups;
+        this.subreddit = subreddit;
+        alreadyUpvoted = false;
+        alreadyUpvoted = false;
     }
 
 
@@ -50,6 +53,7 @@ public class RedditCardPost {
             Picasso.with(imageView.getContext())
                     .load(url)
                     .fit().centerCrop()
+                    .placeholder(R.drawable.progress_animation)
                     .into(imageView);
         } else {
             imageView.setImageBitmap(null);
@@ -64,32 +68,39 @@ public class RedditCardPost {
         ImageView image = (ImageView) dialog.findViewById(R.id.zoomImage);
         Picasso.with(image.getContext())
                 .load(imgURL)
+                .placeholder(R.drawable.progress_animation)
                 .into(image);
         dialog.show();
     }
 
     public void onCommentClick(View view) {
         Intent intent = new Intent(view.getContext(), CommentsActivity.class);
-        Log.e("HERE is",commentsUrl);
-        intent.putExtra("URL", BASE_URL+commentsUrl);
-        intent.putExtra("Title",title);
-        intent.putExtra("NAME",id);
+        Log.e("HERE is", commentsUrl);
+        intent.putExtra("URL", BASE_URL + commentsUrl);
+        intent.putExtra("Title", title);
+        intent.putExtra("NAME", id);
         view.getContext().startActivity(intent);
     }
 
-    public void onTitleClick(View view){
+    public void onTitleClick(View view) {
         Intent intent = new Intent(view.getContext(), DisplayPostActivity.class);
-        Log.e("url",url);
+        Log.e("url", url);
         intent.putExtra("URL", url);
         view.getContext().startActivity(intent);
     }
 
-
-    public String getNumber_comments(){
-        return String.valueOf(num_comments)+" Comments";
+    public void onSubredditClick(View view) {
+        Intent intent = new Intent(view.getContext(), DisplaySubRedditActivity.class);
+        intent.putExtra("url", subreddit);
+        view.getContext().startActivity(intent);
     }
 
-    public String getUpvotes(){
-        return String.valueOf(upvotes)+" Upvotes";
+
+    public String getNumber_comments() {
+        return String.valueOf(num_comments) + " Comments";
+    }
+
+    public String getUpvotes() {
+        return String.valueOf(upvotes) + " Upvotes";
     }
 }

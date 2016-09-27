@@ -46,7 +46,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:text="@{comment.postedOn}"
+                    android:text=""
                     android:textColor="#ff0000"
                     android:textSize="12dp" />
 
@@ -58,15 +58,19 @@
                 android:layout_height="wrap_content"
                 android:paddingBottom="8dp"
                 android:paddingLeft="8dp"
+                android:textColor="@android:color/black"
                 android:paddingRight="8dp"
                 android:paddingTop="8dp"
                 android:text="@{comment.body}" />
             <TextView
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:id="@+id/addComment"
-                android:text="Add Comment"/>
+                android:textSize="15dp"
+                android:paddingRight="10dp"
+                android:textColor="@android:color/black"
+                android:text="Reply"/>
         </LinearLayout>
     </LinearLayout>
 </layout>

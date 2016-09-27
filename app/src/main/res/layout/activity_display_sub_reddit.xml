@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <include
-        android:id="@+id/searchactivity_toolbar"
+        android:id="@+id/subreddit_toolbar"
         layout="@layout/toolbar" />
 
     <ProgressBar

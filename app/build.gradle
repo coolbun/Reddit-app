@@ -40,5 +40,17 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile project(path: ':networkcall')
     compile project(path: ':models')
+    apply plugin: 'com.google.gms.google-services'
 
 }
+
+dependencies {
+    //compile 'com.google.android.gms:play-services:9.0.0'
+    compile 'com.google.android.gms:play-services-location:9.0.0'
+}
+// Firebase dependencies
+dependencies {
+    compile 'com.google.firebase:firebase-core:9.2.0'                        // this line must be included to integrate with Firebase
+    compile 'com.google.firebase:firebase-messaging:9.2.0'                   // this line must be included to use FCM
+}
+

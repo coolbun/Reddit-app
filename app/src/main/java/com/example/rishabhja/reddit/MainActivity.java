@@ -3,7 +3,6 @@ package com.example.rishabhja.reddit;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,6 +30,7 @@ import android.widget.TextView;
 
 import com.example.PostFetcher;
 import com.example.models.AuthorizationToken;
+import com.example.models.Model;
 import com.example.models.SubRedditModel;
 import com.example.models.UserDetails;
 import com.example.rishabhja.reddit.databinding.NavHeaderMainBinding;
@@ -221,16 +221,41 @@ public class MainActivity extends AppCompatActivity
         String subRedditsurl = redditApp.getCurrentUrl() + "/subreddits/.json";
         final Menu menu = navigationView.getMenu();
 
-        //Clear the current menu
         menu.clear();
 
-        SubMenu subMenu = menu.addSubMenu("Sort by : ");
+        SubMenu subMenu = menu.addSubMenu("Sort By :");
         for (String sortTitle : sortTypes)
             subMenu.add(sortTitle);
 
 
-        final SubMenu submenu = menu.addSubMenu("Reddit Picks");
+        if (redditApp.isLoggedin) {
+            final SubMenu submenu = menu.addSubMenu("My Subreddits");
+            PostFetcher postFetcher = new PostFetcher();
+            ListenableFuture<Model> future = postFetcher.fetchUserSubreddits(redditApp.getCurrentUrl()
+                    + "/subreddits/mine.json", redditApp.getToken().getAccessToken());
+            Log.e("Access token", redditApp.getToken().getAccessToken());
+            Futures.addCallback(future, new FutureCallback<Model>() {
+                @Override
+                public void onSuccess(final Model model) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ArrayList<Model.Data.Container> subreddits = model.getChildrenList();
+                            for (final Model.Data.Container subreddit : subreddits) {
+                                submenu.add("r/" + subreddit.getDisplayName());
+                            }
+                        }
+                    });
+                }
 
+                @Override
+                public void onFailure(Throwable throwable) {
+                    Log.e(MainActivity.class.getName(), "My subreddits fetch");
+                }
+            });
+        }
+
+        final SubMenu submenu = menu.addSubMenu("Reddit Picks");
         String accessToken = null;
         if (redditApp.getToken() != null)
             accessToken = redditApp.getToken().getAccessToken();
@@ -306,18 +331,18 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         DrawerLayout mdrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        //if(item.getItemId())
-
         if (mdrawer.isDrawerOpen(GravityCompat.START))
             mdrawer.closeDrawer(GravityCompat.START);
 
-        if (item.getTitle().equals(sortTypes.get(FRONT_INDEX)))
+        if (item.getTitle().equals(sortTypes.get(FRONT_INDEX))) {
+            tb.setTitle("Reddit");
             updateList(redditApp.getCurrentUrl() + "/.json");
-        else if (sortTypes.contains(item.getTitle()))
+        } else if (sortTypes.contains(item.getTitle())) {
+            tb.setTitle("Reddit - " + item.getTitle());
             updateList(redditApp.getCurrentUrl() + "/" + new String((String) item.getTitle()).toLowerCase() + "/.json");
-        else
+        } else {
             updateList(redditApp.getCurrentUrl() + "/" + item.getTitle() + "/.json");
+        }
         return true;
     }
 

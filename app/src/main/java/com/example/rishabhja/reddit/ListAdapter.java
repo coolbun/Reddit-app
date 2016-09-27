@@ -72,45 +72,55 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.BindingHolder>
         holder.getBinding().getRoot().findViewById(R.id.upvote).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mPost.get(position).alreadyUpvoted) {
+                if (mPost.get(position).alreadyDownvoted) {
+
+                } else if (mPost.get(position).alreadyUpvoted) {
                     boolean upvote = notify.notifyVote(mPost.get(position), 0);
                     if (upvote) {
                         mPost.get(position).upvotes--;
                         mPost.get(position).alreadyUpvoted = false;
+                        view.getRootView().findViewById(R.id.downvote).setBackgroundColor
+                                (view.getContext().getColor(R.color.default_vote));
                     }
-                    ((ImageButton) view).setBackgroundColor(0x00BFFF);
+                    view.setBackgroundColor(view.getContext().getColor(R.color.default_vote));
                 } else {
                     boolean upvote = notify.notifyVote(mPost.get(position), 1);
                     if (upvote) {
                         mPost.get(position).upvotes++;
                         mPost.get(position).alreadyUpvoted = true;
+                        view.setBackgroundColor(view.getContext().getColor(R.color.voted));
+                        view.getRootView().findViewById(R.id.downvote).setBackgroundColor
+                                (view.getContext().getColor(R.color.disabled));
                     }
-                    ((ImageButton) view).setBackgroundColor(0x000080);
                 }
                 notifyDataSetChanged();
             }
         });
 
 
-        //sets OnClick for upvote
+        //sets OnClick for downvoted
         holder.getBinding().getRoot().findViewById(R.id.downvote).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mPost.get(position).alreadyDownvoted) {
+                if (mPost.get(position).alreadyUpvoted) {
+                } else if (mPost.get(position).alreadyDownvoted) {
                     boolean upvote = notify.notifyVote(mPost.get(position), 0);
                     if (upvote) {
                         mPost.get(position).upvotes++;
                         mPost.get(position).alreadyDownvoted = false;
                     }
-                    ((ImageButton) view).setBackgroundColor(0x00BFFF);
+                    view.setBackgroundColor(view.getContext().getColor(R.color.default_vote));
+                    view.getRootView().findViewById(R.id.upvote).setBackgroundColor
+                            (view.getContext().getColor(R.color.default_vote));
                 } else {
                     boolean upvote = notify.notifyVote(mPost.get(position), -1);
                     if (upvote) {
                         mPost.get(position).upvotes--;
                         mPost.get(position).alreadyDownvoted = true;
+                        view.setBackgroundColor(view.getContext().getColor(R.color.voted));
+                        view.getRootView().findViewById(R.id.upvote).setBackgroundColor
+                                (view.getContext().getColor(R.color.disabled));
                     }
-                    ((ImageButton) view).setBackgroundColor(0x000080);
-
                 }
                 notifyDataSetChanged();
             }

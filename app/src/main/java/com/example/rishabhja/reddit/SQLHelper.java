@@ -17,7 +17,7 @@ public class SQLHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "PostsDatabase.db";
-    public static final String TABLE_NAME = "finalPosts";
+    public static final String TABLE_NAME = "finalRedditPosts";
     public static final String URL = "url";
     public static final String TITLE = "title";
     public static final String ID = "id";
@@ -26,6 +26,8 @@ public class SQLHelper extends SQLiteOpenHelper {
     public static final String COMMENTSURL = "commentsUrl";
     public static final String NUMBEROFCOMMENTS = "num_comments";
     public static final String UPVOTES = "upvotes_count";
+    public static final String SUBREDDIT = "subreddit";
+
 
 
     public SQLHelper(Context context) {
@@ -42,7 +44,8 @@ public class SQLHelper extends SQLiteOpenHelper {
                 THUMBANILS + " TEXT," +
                 COMMENTSURL + " TEXT," +
                 NUMBEROFCOMMENTS + " INTEGER," +
-                UPVOTES + " INTEGER" +
+                UPVOTES + " INTEGER," +
+                SUBREDDIT + " TEXT" +
                 ");";
         db.execSQL(SQL_CREATE_ENTRIES);
     }
@@ -69,6 +72,7 @@ public class SQLHelper extends SQLiteOpenHelper {
         values.put(COMMENTSURL,post.commentsUrl);
         values.put(NUMBEROFCOMMENTS,post.num_comments);
         values.put(UPVOTES,post.upvotes);
+        values.put(SUBREDDIT,post.subreddit);
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
@@ -77,14 +81,15 @@ public class SQLHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         RedditCardPost post = null;
-        Cursor cursor = db.query(TABLE_NAME, new String[]{ID, TITLE, URL, ImgURL,
+        @Closeable Cursor cursor = db.query(TABLE_NAME, new String[]{ID, TITLE, URL, ImgURL,
                 THUMBANILS,COMMENTSURL}, ID + "=?",
                 new String[]{id}, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
             post = new RedditCardPost(cursor.getString(0),
                     cursor.getString(1), cursor.getString(2), cursor.getString(3),
-                    cursor.getString(4),cursor.getString(5),cursor.getInt(6),cursor.getInt(7));
+                    cursor.getString(4),cursor.getString(5),cursor.getInt(6),cursor.getInt(7),
+                    cursor.getString(8));
         }
         return post;
     }
@@ -106,7 +111,8 @@ public class SQLHelper extends SQLiteOpenHelper {
                                 cursor.getString(4),
                                 cursor.getString(5),
                                 cursor.getInt(6),
-                                cursor.getInt(7));
+                                cursor.getInt(7),
+                                cursor.getString(8));
                         postList.add(post);
                     } while (cursor.moveToNext());
                 }

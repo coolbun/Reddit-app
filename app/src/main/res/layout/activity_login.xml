@@ -3,8 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.example.rishabhja.reddit.LoginActivity">
-<WebView
+    <include layout="@layout/toolbar"
+        android:id="@+id/login_toolbar"
+        />
+    <WebView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/logineWebView"></WebView>
