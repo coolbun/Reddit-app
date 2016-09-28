@@ -81,7 +81,7 @@ public class SQLHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         RedditCardPost post = null;
-        @Closeable Cursor cursor = db.query(TABLE_NAME, new String[]{ID, TITLE, URL, ImgURL,
+        Cursor cursor = db.query(TABLE_NAME, new String[]{ID, TITLE, URL, ImgURL,
                 THUMBANILS,COMMENTSURL}, ID + "=?",
                 new String[]{id}, null, null, null, null);
         if (cursor != null) {

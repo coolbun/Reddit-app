@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.example.models.UserDetails;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 /**
  * Created by rishabh.ja on 19/09/16.
@@ -15,6 +16,7 @@ public class RedditApp extends Application {
 
     private static final String OATH_URL = "https://oauth.reddit.com";
     private static final String BASE_URL = "https://www.reddit.com";
+    private static final String TAG = Application.class.getName();
     private UserDetails token;
     public boolean isLoggedin;
     private String currentUrl;
@@ -22,6 +24,8 @@ public class RedditApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        String registerationToken = FirebaseInstanceId.getInstance().getToken();
+        Log.d(TAG, "Token " + registerationToken);
     }
 
     @Override
@@ -40,9 +44,9 @@ public class RedditApp extends Application {
             currentUrl = OATH_URL;
 
         } else {
-            token=null;
+            token = null;
             isLoggedin = false;
-            currentUrl=BASE_URL;
+            currentUrl = BASE_URL;
         }
     }
 
