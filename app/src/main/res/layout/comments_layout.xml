@@ -3,7 +3,7 @@
 
     <data>
 
-        <import type="com.example.rishabhja.reddit.Comment" />
+        <import type="com.example.rishabhja.reddit.viewmodels.Comment" />
 
         <variable
             name="comment"

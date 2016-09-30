@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.comments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -12,6 +12,8 @@ import android.widget.EditText;
 
 import com.example.PostFetcher;
 import com.example.models.UserDetails;
+import com.example.rishabhja.reddit.R;
+import com.example.rishabhja.reddit.viewmodels.RedditApp;
 
 import java.io.IOException;
 

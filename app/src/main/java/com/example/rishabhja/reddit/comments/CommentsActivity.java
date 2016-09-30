@@ -1,9 +1,8 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.comments;
 
 import android.annotation.TargetApi;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
-import android.databinding.tool.Binding;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -24,6 +23,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.models.UserDetails;
+import com.example.rishabhja.reddit.utils.DividerItemDecoration;
+import com.example.rishabhja.reddit.utils.InvalidAccessDialog;
+import com.example.rishabhja.reddit.R;
+import com.example.rishabhja.reddit.viewmodels.Comment;
+import com.example.rishabhja.reddit.viewmodels.RedditApp;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -8,37 +8,36 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:name=".RedditApp"
+        android:name=".viewmodels.RedditApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/MyAppTheme">
-
-        <activity android:name=".ResultActivity" />
+        <activity android:name=".pushnotification.ResultActivity" />
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".DisplayPostActivity"
+            android:name=".posts.DisplayPostActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".login.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".CommentsActivity"
+            android:name=".comments.CommentsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".SearchResultsActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".CreatePostActivity" />
-        <activity
-            android:name=".AddPostActivity"
+            android:name=".search.SearchResultsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".SplashScreenActivity"
+            android:name=".posts.AddPostActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".posts.LoadImageActivity" />
+        <activity
+            android:name=".utils.SplashScreenActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,20 +46,21 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DisplaySubRedditActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            ></activity>
+            android:name=".posts.DisplaySubRedditActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
 
-        <service android:name=".MyAndroidFirebaseMsgService">
+        <service android:name=".pushnotification.MyAndroidFirebaseMsgService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service android:name=".MyAndroidFirebaseInstanceIdService">
+        <service android:name=".pushnotification.MyAndroidFirebaseInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
+        <activity android:name=".posts.DisplayImageActivity"></activity>
     </application>
 
 </manifest>

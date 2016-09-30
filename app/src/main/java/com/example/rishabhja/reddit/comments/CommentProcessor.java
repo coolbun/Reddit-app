@@ -1,14 +1,14 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.comments;
 
 /**
  * Created by rishabh.ja on 18/09/16.
  */
 
 
-import android.support.v4.util.Pools;
 import android.util.Log;
 
 import com.example.PostFetcher;
+import com.example.rishabhja.reddit.viewmodels.Comment;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;

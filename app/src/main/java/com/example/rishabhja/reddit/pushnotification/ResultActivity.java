@@ -1,13 +1,15 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.pushnotification;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class CreatePostActivity extends AppCompatActivity {
+import com.example.rishabhja.reddit.R;
+
+public class ResultActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_post);
+        setContentView(R.layout.activity_result);
     }
 }

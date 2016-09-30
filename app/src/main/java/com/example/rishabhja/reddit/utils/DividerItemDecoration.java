@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.utils;
 
 import android.content.Context;
 import android.content.res.TypedArray;

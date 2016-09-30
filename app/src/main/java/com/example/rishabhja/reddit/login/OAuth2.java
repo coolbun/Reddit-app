@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.login;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.posts;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -14,41 +14,25 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class LoginActivity extends AppCompatActivity {
+import com.example.rishabhja.reddit.R;
 
+public class DisplayPostActivity extends AppCompatActivity {
 
-    private WebView webView;
     private Toolbar tb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_display_post);
 
-        tb = (Toolbar) findViewById(R.id.login_toolbar);
+        tb = (Toolbar) findViewById(R.id.displaypost_toolbar);
         initUI();
-        setStausBarcolor();
 
-
-        webView = (WebView) findViewById(R.id.logineWebView);
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url.startsWith("http://localhost")) {
-                    Intent intent = new Intent();
-                    intent.putExtra("URL", url);
-                    setResult(1, intent);
-                    finish();
-                }
-                return false;
-            }
-        });
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.setVerticalScrollBarEnabled(true);
-        webView.getSettings().setUseWideViewPort(true);
-        webView.getSettings().setBuiltInZoomControls(true);
-        webView.setHorizontalScrollBarEnabled(true);
-        webView.loadUrl(getIntent().getStringExtra("URL"));
+        Log.e("URL in diaply post",getIntent().getStringExtra("URL"));
+        Intent intent=getIntent();
+        WebView webView= (WebView) findViewById(R.id.webView);
+        webView.setWebViewClient(new WebViewClient());
+        webView.loadUrl(intent.getStringExtra("URL"));
     }
 
     private void initUI() {
@@ -65,6 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(ContextCompat.getColor(this, R.color.cardview_dark_background));
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -1,11 +1,14 @@
 package com.example;
 
+import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
 
 import com.example.models.AuthorizationToken;
 import com.example.models.CaptchaResponse;
+import com.example.models.ImgurModel;
 import com.example.models.Model;
+import com.example.models.PostSubmitResponseModel;
 import com.example.models.SubRedditModel;
 import com.example.models.UserDetails;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -15,12 +18,16 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -30,6 +37,8 @@ import okhttp3.Response;
 public class PostFetcher {
 
     public static final String TAG = PostFetcher.class.getName();
+    private static final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+    private static final String IMGUR_CLIENT_ID = "a5c6412c51e2b3a";
     private String url;
     private Callback callback;
     private Request.Builder builder;
@@ -74,6 +83,29 @@ public class PostFetcher {
             request = builder.build();
         client.newCall(request).enqueue(callback);
     }
+
+
+    //Creates multipart request
+    public void getUrlFromImgur(File file) {
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addPart(
+                        Headers.of("Content-Disposition", "form-data; name=\"title\""),
+                        RequestBody.create(null, "Square Logo"))
+                .addPart(
+                        Headers.of("Content-Disposition", "form-data; name=\"image\""),
+                        RequestBody.create(MEDIA_TYPE_PNG, file))
+                .build();
+        builder = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .header("Authorization", "Client-ID " + IMGUR_CLIENT_ID);
+        Request request;
+        request = builder.build();
+        client.newCall(request).enqueue(callback);
+    }
+
 
     public void setFormValues(String... args) {
         params = null;
@@ -219,8 +251,7 @@ public class PostFetcher {
                     String idenJson = data.getJSONObject("json").toString();
                     Log.e("IDENJSON", idenJson);
                     CaptchaResponse captcha = gson.fromJson(idenJson, CaptchaResponse.class);
-                    Log.e("Captcha iden resp", responseData);
-                    settableFuture.set("https://www.reddit.com/captcha/iden?iden=" + captcha.getIden());
+                    settableFuture.set(captcha.getIden());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -299,7 +330,7 @@ public class PostFetcher {
         return future;
     }
 
-    public ListenableFuture<Model> fetchUserSubreddits(String url, String ...headers) {
+    public ListenableFuture<Model> fetchUserSubreddits(String url, String... headers) {
         PostFetcher postFetch = new PostFetcher();
         postFetch.setURL(url);
         final SettableFuture future = SettableFuture.create();
@@ -313,7 +344,7 @@ public class PostFetcher {
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 final String responseData = response.body().string();
-                Log.e("my subreddit",responseData);
+                Log.e("my subreddit", responseData);
                 Gson gson = new Gson();
                 Model model = gson.fromJson(responseData, Model.class);
                 future.set(model);
@@ -321,5 +352,72 @@ public class PostFetcher {
         });
         postFetch.execute(headers);
         return future;
+    }
+
+    public ListenableFuture<String> getUrlImgur(File imgfile) {
+        final SettableFuture futures = SettableFuture.create();
+
+        PostFetcher postFetcher = new PostFetcher();
+        postFetcher.setURL("https://api.imgur.com/3/upload");
+        postFetcher.setCallback(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, e.toString());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Gson gson = new Gson();
+                String responseData = response.body().string();
+                try {
+                    JSONObject data = new JSONObject(responseData).getJSONObject("data");
+                    ImgurModel url = gson.fromJson(data.toString(), ImgurModel.class);
+                    futures.set(url.getUrl());
+                    Log.e(TAG, "URL " + url.getUrl());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        postFetcher.getUrlFromImgur(imgfile);
+        return futures;
+    }
+
+    public ListenableFuture<PostSubmitResponseModel> submitPost(String url,
+                                                                String accessToken, String... args) {
+        final SettableFuture futures = SettableFuture.create();
+        PostFetcher postFetcher = new PostFetcher();
+        postFetcher.setURL(url + "/api/submit");
+
+        postFetcher.setFormValues("api_type", "json",
+                "title", args[0],
+                "text", args[1],
+                "kind", args[2],
+                "captcha", args[3],
+                "iden", args[4],
+                "sr", args[5],
+                "url", args[6]
+        );
+
+        postFetcher.setCallback(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "Submit Post Failed " + e.toString());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Gson gson = new Gson();
+                String responseData=response.body().string();
+                PostSubmitResponseModel model = gson.fromJson(responseData,
+                        PostSubmitResponseModel.class);
+                Log.e(TAG,responseData);
+                futures.set(model);
+                if(model.json.data.url==null)
+                    futures.setException(new Throwable("Error response from server on submit post"));
+            }
+        });
+        postFetcher.execute(accessToken);
+        return futures;
     }
 }

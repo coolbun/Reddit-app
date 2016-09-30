@@ -1,17 +1,19 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.viewmodels;
 
 import android.app.Dialog;
 import android.content.Intent;
 import android.databinding.BindingAdapter;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 
+import com.example.rishabhja.reddit.R;
+import com.example.rishabhja.reddit.comments.CommentsActivity;
+import com.example.rishabhja.reddit.posts.DisplayPostActivity;
+import com.example.rishabhja.reddit.posts.DisplaySubRedditActivity;
 import com.squareup.picasso.Picasso;
 
-public class RedditCardPost {
+public class PostViewModel {
 
     public final String title;
     public final String imgURL;
@@ -26,8 +28,8 @@ public class RedditCardPost {
     public boolean alreadyDownvoted;
     public String subreddit;
 
-    public RedditCardPost(String id, String title, String url, String imgurl,
-                          String thumbanil, String commentsUrl, int num_comments, int ups, String
+    public PostViewModel(String id, String title, String url, String imgurl,
+                         String thumbanil, String commentsUrl, int num_comments, int ups, String
                                   subreddit) {
         this.id = id;
         this.title = title;

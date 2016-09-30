@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.viewmodels;
 
 import android.app.DialogFragment;
 import android.support.v4.app.FragmentManager;

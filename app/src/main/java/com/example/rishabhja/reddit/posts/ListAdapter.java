@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.posts;
 
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
@@ -8,22 +8,24 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
+
+import com.example.rishabhja.reddit.R;
+import com.example.rishabhja.reddit.databinding.CardsLayoutBinding;
+import com.example.rishabhja.reddit.viewmodels.PostViewModel;
 
 import java.util.List;
 
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.BindingHolder> {
 
-    private List<RedditCardPost> mPost;
+    private List<PostViewModel> mPost;
     private NotificationsInterface notify;
 
     public interface NotificationsInterface {
-        public void notifyDeletion(RedditCardPost post);
+        public void notifyDeletion(PostViewModel post);
 
-        public boolean notifyVote(RedditCardPost post, int dir);
+        public boolean notifyVote(PostViewModel post, int dir);
     }
 
     @Override
@@ -35,12 +37,12 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.BindingHolder>
 
     @Override
     public void onBindViewHolder(BindingHolder holder, final int position) {
-        Log.d(ListAdapter.class.getName(), "post size: " + mPost.size() + ", position: " + position);
-        RedditCardPost post = mPost.get(position);
-        holder.getBinding().setVariable(com.example.rishabhja.reddit.BR.cardPost, post);
+        PostViewModel post = mPost.get(position);
+        final CardsLayoutBinding binding = (CardsLayoutBinding) holder.getBinding();
+        binding.setCardPost(post);
 
         //sets onClick for popUpMenu
-        holder.getBinding().getRoot().findViewById(R.id.popup).setOnClickListener(new View.OnClickListener() {
+        binding.popup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
@@ -69,7 +71,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.BindingHolder>
         });
 
         //sets OnClick for upvote
-        holder.getBinding().getRoot().findViewById(R.id.upvote).setOnClickListener(new View.OnClickListener() {
+        binding.upvote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mPost.get(position).alreadyDownvoted) {
@@ -79,7 +81,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.BindingHolder>
                     if (upvote) {
                         mPost.get(position).upvotes--;
                         mPost.get(position).alreadyUpvoted = false;
-                        view.getRootView().findViewById(R.id.downvote).setBackgroundColor
+                        binding.downvote.setBackgroundColor
                                 (view.getContext().getColor(R.color.default_vote));
                     }
                     view.setBackgroundColor(view.getContext().getColor(R.color.default_vote));
@@ -89,7 +91,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.BindingHolder>
                         mPost.get(position).upvotes++;
                         mPost.get(position).alreadyUpvoted = true;
                         view.setBackgroundColor(view.getContext().getColor(R.color.voted));
-                        view.getRootView().findViewById(R.id.downvote).setBackgroundColor
+                        binding.downvote.setBackgroundColor
                                 (view.getContext().getColor(R.color.disabled));
                     }
                 }
@@ -99,7 +101,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.BindingHolder>
 
 
         //sets OnClick for downvoted
-        holder.getBinding().getRoot().findViewById(R.id.downvote).setOnClickListener(new View.OnClickListener() {
+        binding.downvote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mPost.get(position).alreadyUpvoted) {
@@ -110,7 +112,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.BindingHolder>
                         mPost.get(position).alreadyDownvoted = false;
                     }
                     view.setBackgroundColor(view.getContext().getColor(R.color.default_vote));
-                    view.getRootView().findViewById(R.id.upvote).setBackgroundColor
+                    binding.upvote.setBackgroundColor
                             (view.getContext().getColor(R.color.default_vote));
                 } else {
                     boolean upvote = notify.notifyVote(mPost.get(position), -1);
@@ -118,20 +120,18 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.BindingHolder>
                         mPost.get(position).upvotes--;
                         mPost.get(position).alreadyDownvoted = true;
                         view.setBackgroundColor(view.getContext().getColor(R.color.voted));
-                        view.getRootView().findViewById(R.id.upvote).setBackgroundColor
+                        binding.upvote.setBackgroundColor
                                 (view.getContext().getColor(R.color.disabled));
                     }
                 }
                 notifyDataSetChanged();
             }
         });
-
-
-        holder.getBinding().executePendingBindings();
+        binding.executePendingBindings();
     }
 
 
-    public ListAdapter(List<RedditCardPost> posts, NotificationsInterface notificationsInterface) {
+    public ListAdapter(List<PostViewModel> posts, NotificationsInterface notificationsInterface) {
         mPost = posts;
         this.notify = notificationsInterface;
     }

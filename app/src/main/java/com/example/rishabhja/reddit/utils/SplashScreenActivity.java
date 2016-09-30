@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.utils;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -8,6 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.example.rishabhja.reddit.MainActivity;
+import com.example.rishabhja.reddit.R;
 
 public class SplashScreenActivity extends AppCompatActivity {
 

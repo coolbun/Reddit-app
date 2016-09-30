@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.posts;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -14,6 +14,14 @@ import android.widget.Toast;
 
 import com.example.PostFetcher;
 import com.example.models.Model;
+import com.example.rishabhja.reddit.utils.InvalidAccessDialog;
+import com.example.rishabhja.reddit.MainActivity;
+import com.example.rishabhja.reddit.R;
+import com.example.rishabhja.reddit.search.SearchResultsActivity;
+import com.example.rishabhja.reddit.sql.SQLHelper;
+import com.example.rishabhja.reddit.utils.EndlessRecyclerViewScrollListener;
+import com.example.rishabhja.reddit.viewmodels.RedditApp;
+import com.example.rishabhja.reddit.viewmodels.PostViewModel;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -25,7 +33,7 @@ import java.util.List;
 public class ListFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private ArrayList<RedditCardPost> data;
+    private ArrayList<PostViewModel> data;
     private ListAdapter adapter;
     private String url;
     private SQLHelper dbHelper = null;
@@ -74,11 +82,11 @@ public class ListFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 
-        data = new ArrayList<RedditCardPost>();
+        data = new ArrayList<PostViewModel>();
 
         adapter = new ListAdapter(data, new ListAdapter.NotificationsInterface() {
             @Override
-            public void notifyDeletion(RedditCardPost post) {
+            public void notifyDeletion(PostViewModel post) {
                 if (redditApp.isLoggedin) {
                     ListenableFuture<Boolean> future = postFetcher.deletePost(post.id,
                             redditApp.getToken().getAccessToken());
@@ -86,7 +94,7 @@ public class ListFragment extends Fragment {
             }
 
             @Override
-            public boolean notifyVote(RedditCardPost post, int dir) {
+            public boolean notifyVote(PostViewModel post, int dir) {
                 if (redditApp.isLoggedin) {
                     ListenableFuture<Boolean> future = postFetcher.votePost(post.id,
                             redditApp.getToken().getAccessToken(), dir);
@@ -168,7 +176,7 @@ public class ListFragment extends Fragment {
                     if (commentURL.endsWith("?ref=search_posts"))
                         commentURL = commentURL.substring(0, commentURL.length() - 17);
                     c.setCommentURL(commentURL);
-                    RedditCardPost post = new RedditCardPost(c.getId(), c.getTitle(), c.getUrl(),
+                    PostViewModel post = new PostViewModel(c.getId(), c.getTitle(), c.getUrl(),
                             c.getImgURL(), c.getThumbnail(), c.getCommentsUrl(), c.getNum_comments(),
                             c.getUpvotes(), "r/" + c.getSubreddit());
                     data.add(post);
@@ -194,8 +202,8 @@ public class ListFragment extends Fragment {
     private void showPostFromDB() {
         if (dbHelper == null)
             return;
-        List<RedditCardPost> postList = dbHelper.getallPosts();
-        for (RedditCardPost post : postList) {
+        List<PostViewModel> postList = dbHelper.getallPosts();
+        for (PostViewModel post : postList) {
             data.add(post);
         }
         adapter.notifyDataSetChanged();
@@ -210,13 +218,13 @@ public class ListFragment extends Fragment {
         Futures.addCallback(future, new FutureCallback<Model>() {
             @Override
             public void onSuccess(Model model) {
-                ArrayList<RedditCardPost> newPosts = new ArrayList<RedditCardPost>();
+                ArrayList<PostViewModel> newPosts = new ArrayList<PostViewModel>();
                 for (Model.Data.Container c : model.getChildrenList()) {
                     String commentURL = c.getCommentsUrl();
                     if (commentURL.endsWith("?ref=search_posts"))
                         commentURL = commentURL.substring(0, commentURL.length() - 17);
                     c.setCommentURL(commentURL);
-                    RedditCardPost post = new RedditCardPost(c.getId(), c.getTitle(), c.getUrl(),
+                    PostViewModel post = new PostViewModel(c.getId(), c.getTitle(), c.getUrl(),
                             c.getImgURL(), c.getThumbnail(), c.getCommentsUrl(), c.getNum_comments(),
                             c.getUpvotes(), "r/" + c.getSubreddit());
                     newPosts.add(post);
@@ -225,7 +233,7 @@ public class ListFragment extends Fragment {
                         dbHelper.addPost(post);
                 }
                 data.clear();
-                for (RedditCardPost post : newPosts)
+                for (PostViewModel post : newPosts)
                     data.add(post);
                 getActivity().runOnUiThread(new Runnable() {
                     @Override

@@ -1,10 +1,12 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.utils;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+
+import com.example.rishabhja.reddit.R;
 
 /**
  * Created by rishabh.ja on 02/09/16.

@@ -48,7 +48,7 @@
         android:layout_height="match_parent"
         android:background="@color/divider"
         android:orientation="vertical"
-        tools:context="com.example.rishabhja.reddit.CommentsActivity"
+        tools:context=".comments.CommentsActivity"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <!--<include-->

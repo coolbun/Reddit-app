@@ -34,6 +34,15 @@ import com.example.models.Model;
 import com.example.models.SubRedditModel;
 import com.example.models.UserDetails;
 import com.example.rishabhja.reddit.databinding.NavHeaderMainBinding;
+import com.example.rishabhja.reddit.login.LoginActivity;
+import com.example.rishabhja.reddit.login.OAuth2;
+import com.example.rishabhja.reddit.posts.AddPostActivity;
+import com.example.rishabhja.reddit.posts.ListFragment;
+import com.example.rishabhja.reddit.posts.LoadImageActivity;
+import com.example.rishabhja.reddit.search.SearchResultsActivity;
+import com.example.rishabhja.reddit.utils.InvalidAccessDialog;
+import com.example.rishabhja.reddit.viewmodels.RedditApp;
+import com.example.rishabhja.reddit.viewmodels.UserViewModel;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -108,7 +117,7 @@ public class MainActivity extends AppCompatActivity
 
     private void initUI() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        Fragment fragment = new com.example.rishabhja.reddit.ListFragment();
+        Fragment fragment = new ListFragment();
         Bundle bundle = new Bundle();
         bundle.putString("URL", redditApp.getCurrentUrl() + "/.json");
         bundle.putBoolean("isOffline", true);

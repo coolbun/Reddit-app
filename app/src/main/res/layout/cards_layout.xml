@@ -5,11 +5,11 @@
 
     <data>
 
-        <import type="com.example.rishabhja.reddit.RedditCardPost" />
+        <import type="com.example.rishabhja.reddit.viewmodels.PostViewModel" />
 
         <variable
             name="cardPost"
-            type="RedditCardPost" />
+            type="PostViewModel" />
     </data>
 
     <LinearLayout
@@ -17,7 +17,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:tag="cards main container">
-
 
         <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:id="@+id/card_view"

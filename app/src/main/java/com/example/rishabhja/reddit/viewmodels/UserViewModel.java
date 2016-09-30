@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.viewmodels;
 
 import android.databinding.ObservableField;
 

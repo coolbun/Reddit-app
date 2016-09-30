@@ -1,10 +1,12 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.sql;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.example.rishabhja.reddit.viewmodels.PostViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +63,7 @@ public class SQLHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public void addPost(RedditCardPost post) {
+    public void addPost(PostViewModel post) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(ID, post.id);
@@ -77,16 +79,16 @@ public class SQLHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public RedditCardPost getPost(String id) {
+    public PostViewModel getPost(String id) {
 
         SQLiteDatabase db = this.getReadableDatabase();
-        RedditCardPost post = null;
+        PostViewModel post = null;
         Cursor cursor = db.query(TABLE_NAME, new String[]{ID, TITLE, URL, ImgURL,
                 THUMBANILS,COMMENTSURL}, ID + "=?",
                 new String[]{id}, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
-            post = new RedditCardPost(cursor.getString(0),
+            post = new PostViewModel(cursor.getString(0),
                     cursor.getString(1), cursor.getString(2), cursor.getString(3),
                     cursor.getString(4),cursor.getString(5),cursor.getInt(6),cursor.getInt(7),
                     cursor.getString(8));
@@ -94,8 +96,8 @@ public class SQLHelper extends SQLiteOpenHelper {
         return post;
     }
 
-    public List<RedditCardPost> getallPosts() {
-        List<RedditCardPost> postList = new ArrayList<RedditCardPost>();
+    public List<PostViewModel> getallPosts() {
+        List<PostViewModel> postList = new ArrayList<PostViewModel>();
 
         String selectQuery = "SELECT * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -104,7 +106,7 @@ public class SQLHelper extends SQLiteOpenHelper {
             try {
                 if (cursor.moveToFirst()) {
                     do {
-                        RedditCardPost post = new RedditCardPost(cursor.getString(0),
+                        PostViewModel post = new PostViewModel(cursor.getString(0),
                                 cursor.getString(1),
                                 cursor.getString(2),
                                 cursor.getString(3),
@@ -130,8 +132,8 @@ public class SQLHelper extends SQLiteOpenHelper {
     }
 
     public void deleteAll() {
-        List<RedditCardPost> postlist = getallPosts();
-        for (RedditCardPost post : postlist) {
+        List<PostViewModel> postlist = getallPosts();
+        for (PostViewModel post : postlist) {
             deletePost(post.id);
         }
     }

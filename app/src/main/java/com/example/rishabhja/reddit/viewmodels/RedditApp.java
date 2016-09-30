@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.viewmodels;
 
 import android.app.Application;
 import android.content.Context;
@@ -21,12 +21,6 @@ public class RedditApp extends Application {
     public boolean isLoggedin;
     private String currentUrl;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        String registerationToken = FirebaseInstanceId.getInstance().getToken();
-        Log.d(TAG, "Token " + registerationToken);
-    }
 
     @Override
     public void onTerminate() {

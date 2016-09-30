@@ -1,76 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.example.rishabhja.reddit.AddPostActivity">
+    android:layout_height="match_parent">
 
-    <include
-        android:id="@+id/add_post_toolbar"
-        layout="@layout/toolbar" />
-
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#A4C639"
-        android:gravity="center"
-        android:text="Enter title"
-        android:textColor="@color/icons"
-        android:textSize="20dp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".posts.AddPostActivity">
 
-    <EditText
-        android:id="@+id/postTitle"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp" />
+        <include
+            android:id="@+id/add_post_toolbar"
+            layout="@layout/toolbar" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#A4C639"
-        android:gravity="center"
-        android:text="Enter Body"
-        android:textColor="@color/icons"
-        android:textSize="20dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="#A4C639"
+            android:gravity="center"
+            android:text="Enter title"
+            android:textColor="@color/icons"
+            android:textSize="20dp" />
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:id="@+id/postBody" />
+        <EditText
+            android:id="@+id/postTitle"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#A4C639"
-        android:gravity="center"
-        android:text="Enter Captcha"
-        android:textColor="@color/icons"
-        android:textSize="20dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="#A4C639"
+            android:gravity="center"
+            android:text="Enter Body"
+            android:textColor="@color/icons"
+            android:textSize="20dp" />
 
-    <ImageView
-        android:id="@+id/captcha"
-        android:layout_width="120dp"
-        android:layout_height="50dp"
-        android:layout_gravity="center" />
+        <EditText
+            android:id="@+id/postBody"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp" />
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:id="@+id/captcha_text" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="#A4C639"
+            android:gravity="center"
+            android:text="Enter Captcha"
+            android:textColor="@color/icons"
+            android:textSize="20dp" />
 
-    <Button
-        android:id="@+id/submitPost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:background="#A4C639"
-        android:textColor="@color/icons"
-        android:text="Submit" />
+        <ImageView
+            android:id="@+id/captcha"
+            android:layout_width="120dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center" />
 
-</LinearLayout>
+        <EditText
+            android:id="@+id/captcha_text"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="#A4C639"
+            android:gravity="center"
+            android:text="Add Image"
+            android:textColor="@color/icons"
+            android:id="@+id/load_image"
+            android:textSize="20dp" />
+
+
+        <ImageView
+            android:id="@+id/image_post"
+            android:layout_width="300dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center_horizontal" />
+
+        <Button
+            android:id="@+id/submitPost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="#A4C639"
+            android:text="Submit"
+            android:textColor="@color/icons" />
+    </LinearLayout>
+</ScrollView>

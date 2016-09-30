@@ -1,4 +1,4 @@
-package com.example.rishabhja.reddit;
+package com.example.rishabhja.reddit.search;
 
 import android.annotation.TargetApi;
 import android.app.Fragment;
@@ -16,10 +16,10 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.example.PostFetcher;
-import com.google.common.util.concurrent.ListenableFuture;
+import com.example.rishabhja.reddit.posts.ListFragment;
+import com.example.rishabhja.reddit.R;
 
-public class DisplaySubRedditActivity extends AppCompatActivity {
+public class SearchResultsActivity extends AppCompatActivity {
 
 
     private String url;
@@ -27,37 +27,22 @@ public class DisplaySubRedditActivity extends AppCompatActivity {
     private Toolbar tb;
     private Context context;
     private final String BASE_URL = "http://www.reddit.com";
-    private RedditApp redditApp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display_sub_reddit);
+        setContentView(R.layout.activity_search_results);
 
         context = this;
-        tb = (Toolbar) findViewById(R.id.subreddit_toolbar);
+        tb = (Toolbar) findViewById(R.id.searchactivity_toolbar);
         setSupportActionBar(tb);
         initUI();
 
-        String subreddit = getIntent().getStringExtra("url");
-        redditApp = (RedditApp) getApplication();
-        url = redditApp.getCurrentUrl() + "/" + subreddit.toLowerCase() + "/.json";
+        url = getIntent().getStringExtra("url");
+        query = getIntent().getStringExtra("query_text");
+        url += "?q=" + query;
         setupFragment();
-    }
 
-    private void setupFragment() {
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        Fragment fragment = new com.example.rishabhja.reddit.ListFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("URL", url);
-        fragment.setArguments(bundle);
-        transaction.add(R.id.search_fragment_container, fragment).commit();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_displaysubreddit, menu);
-        return true;
     }
 
     @Override
@@ -66,15 +51,42 @@ public class DisplaySubRedditActivity extends AppCompatActivity {
             case android.R.id.home:
                 finish();
                 return true;
-            /*case R.id.subscribe_subreddit:
-                PostFetcher postFetcher=new PostFetcher();
-                if(redditApp.isLoggedin) {
-                    postFetcher.setURL("");
-                }*/
         }
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        searchView.setOnQueryTextListener(
+                new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        updateList(BASE_URL + "/search.json?q=" + query);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        return false;
+                    }
+                }
+        );
+        return true;
+    }
+
+    private void setupFragment() {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        Fragment fragment = new ListFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("URL", url);
+        fragment.setArguments(bundle);
+        transaction.add(R.id.search_fragment_container, fragment).commit();
+    }
 
     private void initUI() {
         setStausBarcolor();
