@@ -76,12 +76,11 @@ public class DisplayImageActivity extends AppCompatActivity {
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
             this.imageView.setImageBitmap(bitmap);
             try {
-                File externalDir = context.getExternalFilesDir("ShareImages");
-                imgfile = new File(externalDir, "image.png");
-//                File dir = Environment.getExternalStoragePublicDirectory("ImageSave");
-//                dir.mkdirs();
-//                Log.d(TAG, "File null check " + dir.getAbsolutePath());
-//                File imgfile = new File(dir, "myimage.png");
+                File dir = Environment.getExternalStorageDirectory();
+                File path = new File(dir.getAbsolutePath(), "SavesIReddit");
+                if (!path.exists())
+                    path.mkdirs();
+                imgfile = new File(path, "myimage.png");
                 OutputStream fos = new FileOutputStream(imgfile);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                 fos.close();
