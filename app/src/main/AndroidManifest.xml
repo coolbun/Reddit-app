@@ -45,6 +45,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".posts.DisplayImageActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".posts.DisplaySubRedditActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -60,7 +64,6 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".posts.DisplayImageActivity"></activity>
     </application>
 
 </manifest>

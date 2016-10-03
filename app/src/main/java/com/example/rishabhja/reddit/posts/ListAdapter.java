@@ -1,5 +1,6 @@
 package com.example.rishabhja.reddit.posts;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.support.v7.widget.RecyclerView;
@@ -37,14 +38,14 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.BindingHolder>
 
     @Override
     public void onBindViewHolder(BindingHolder holder, final int position) {
-        PostViewModel post = mPost.get(position);
+        final PostViewModel post = mPost.get(position);
         final CardsLayoutBinding binding = (CardsLayoutBinding) holder.getBinding();
         binding.setCardPost(post);
 
         //sets onClick for popUpMenu
         binding.popup.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
                 popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
 
@@ -61,6 +62,10 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.BindingHolder>
                                 notifyDataSetChanged();
                                 return true;
                             case R.id.sharepost:
+                                Intent sharePost = new Intent(Intent.ACTION_SEND);
+                                sharePost.putExtra(Intent.EXTRA_TEXT, post.title);
+                                sharePost.setType("text/plain");
+                                view.getContext().startActivity(sharePost);
                                 return true;
                         }
                         return false;

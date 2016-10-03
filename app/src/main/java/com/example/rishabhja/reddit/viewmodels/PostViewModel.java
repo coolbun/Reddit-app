@@ -9,6 +9,7 @@ import android.widget.ImageView;
 
 import com.example.rishabhja.reddit.R;
 import com.example.rishabhja.reddit.comments.CommentsActivity;
+import com.example.rishabhja.reddit.posts.DisplayImageActivity;
 import com.example.rishabhja.reddit.posts.DisplayPostActivity;
 import com.example.rishabhja.reddit.posts.DisplaySubRedditActivity;
 import com.squareup.picasso.Picasso;
@@ -65,14 +66,9 @@ public class PostViewModel {
 
     public void onImageClick(View view) {
         ImageView imageView = (ImageView) view;
-        Dialog dialog = new Dialog(imageView.getContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        dialog.setContentView(R.layout.image_view);
-        ImageView image = (ImageView) dialog.findViewById(R.id.zoomImage);
-        Picasso.with(image.getContext())
-                .load(imgURL)
-                .placeholder(R.drawable.progress_animation)
-                .into(image);
-        dialog.show();
+        Intent intent=new Intent(view.getContext(), DisplayImageActivity.class);
+        intent.putExtra("URL",imgURL);
+        view.getContext().startActivity(intent);
     }
 
     public void onCommentClick(View view) {

@@ -29,7 +29,10 @@ public class CommentProcessor {
         this.sendResult = sendResult;
     }
 
-    // Load various details about the comment
+    /**
+     * Load various details about the comment
+     */
+
     private Comment loadComment(JSONObject data, int level) {
         Comment comment = new Comment("ge");
         try {
@@ -86,10 +89,13 @@ public class CommentProcessor {
         }
     }
 
-    // Load the comments as an ArrayList, so that it can be
-    // easily passed to the ArrayAdapter
+    /**
+     * Load the comments as an ArrayList, so that it can be
+     * easily passed to the ArrayAdapter
+     */
+
     void fetchComments() {
-        PostFetcher getComments=new PostFetcher();
+        PostFetcher getComments = new PostFetcher();
         getComments.setURL(url);
         ListenableFuture<String> listenableFuture = getComments.fetchComments();
         Futures.addCallback(listenableFuture, new FutureCallback<String>() {
@@ -101,9 +107,10 @@ public class CommentProcessor {
                     e.printStackTrace();
                 }
             }
+
             @Override
             public void onFailure(Throwable throwable) {
-                Log.e(CommentProcessor.class.getName(),"Error connecting");
+                Log.e(CommentProcessor.class.getName(), "Error connecting");
             }
         });
     }
@@ -121,8 +128,8 @@ public class CommentProcessor {
         sendResult.sendComments(comments);
     }
 
-public interface SendResult {
-    public void sendComments(ArrayList<Comment> comments);
-}
+    public interface SendResult {
+        public void sendComments(ArrayList<Comment> comments);
+    }
 
 }
